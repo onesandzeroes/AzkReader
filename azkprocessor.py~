@@ -78,11 +78,10 @@ elif usingSettings == True:
         
 
     
-def grabTrialInfo(dmdxLine, IDindexes):
-    code = str(dmdxLine.split()[0])
-    rt = dmdxLine.split()[1]
-    if float(rt) > 0: 
-        correct = 1
+def grabTrialInfo(line, IDindexes):
+    code = str(line.split()[0])
+    rt = line.split()[1]
+    if float(rt) > 0: correct = 1
     else: correct = 0
     trialInfo = [code, abs(float(rt)), correct, trialNum]
     for each in IDindexes:
@@ -91,7 +90,7 @@ def grabTrialInfo(dmdxLine, IDindexes):
 
 f = open('parsedAZK.csv', 'w', newline='')
 outputFile = csv.writer(f, dialect='excel')
-outputColumns = ['subject', 'itemcode', 'rt', 'correct', 'trialorder']
+outputColumns = ['subject','itemcode','rt','correct','trialorder']
 for thing in thingsInID:
     outputColumns.append(thing)
 outputFile.writerow(outputColumns)
