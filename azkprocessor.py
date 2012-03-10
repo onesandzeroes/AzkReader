@@ -13,14 +13,14 @@ trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
 
 usingSettings = False
 
-## Looks for the settings file 'azkprocessor.conf', 
+## Looks for the settings file 'azkprocessor.conf',
 ## and if it doesn't exist, creates it
 try:
-    settingsFile = csv.reader(open("azkprocessor.conf", "r"), 
+    settingsFile = csv.reader(open("azkprocessor.conf", "r"),
                               dialect='excel')
     print("Reuse settings from last time? \n (Y)es   (N)o")
     askAboutSettings = str(input()).lower()
-    if askAboutSettings == 'y' or askAboutSettings == 'yes': 
+    if askAboutSettings == 'y' or askAboutSettings == 'yes':
         usingSettings = True
     elif askAboutSettings == 'n' or askAboutSettings == 'no':
         usingSettings = False
@@ -31,7 +31,7 @@ except IOError:
 
 ##print("How long are your item ID codes?")
 ##IDLength = int(input())
-## If the user doesn't want to reuse last time's settings, 
+## If the user doesn't want to reuse last time's settings,
 ##  need to ask about the variables in the trial's ID number
 ##  and where they can be found
 if usingSettings == False:
@@ -44,28 +44,29 @@ if usingSettings == False:
         entered = input()
         if len(entered) > 0:
             thingsInID.append(entered)
-        else: enteringIDthings = False
+        else:
+            enteringIDthings = False
     print("Now type where those values are"
-          " found in the ID string. \n" 
+          " found in the ID string. \n"
           "If they are longer than one digit,"
           " type them in the form '2-4' \n")
     indexesInID = []
     indexSettings = []
     for eachThing in thingsInID:
         print(str(eachThing))
-        enteredIndex = str(input()) 
+        enteredIndex = str(input())
         if len(enteredIndex) > 1:
-            start = int(enteredIndex.split('-')[0])-1
+            start = int(enteredIndex.split('-')[0]) - 1
             end = int(enteredIndex.split('-')[1])
             indexesInID.append(slice(start, end))
         else:
-            start = int(enteredIndex)-1
+            start = int(enteredIndex) - 1
             end = int(enteredIndex)
             indexesInID.append(slice(start, end))
-        indexSettings.append((start, end))        
-    for i in range(0, len(thingsInID)):        
-        writeSettingsFile.write(str(thingsInID[i]) + ',' + 
-                                str(indexSettings[i][0]) + ',' + 
+        indexSettings.append((start, end))
+    for i in range(0, len(thingsInID)):
+        writeSettingsFile.write(str(thingsInID[i]) + ',' +
+                                str(indexSettings[i][0]) + ',' +
                                 str(indexSettings[i][1]) + '\n')
     writeSettingsFile.close()
 elif usingSettings == True:
@@ -75,15 +76,15 @@ elif usingSettings == True:
         thingsInID.append(eachSetting[0])
         indexesInID.append(slice(int(eachSetting[1]),
                            int(eachSetting[2])))
-        
 
-    
+
 def grabTrialInfo(dmdxLine, IDindexes):
     code = str(dmdxLine.split()[0])
     rt = dmdxLine.split()[1]
-    if float(rt) > 0: 
+    if float(rt) > 0:
         correct = 1
-    else: correct = 0
+    else:
+        correct = 0
     trialInfo = [code, abs(float(rt)), correct, trialNum]
     for each in IDindexes:
         trialInfo.append(str(code[each]))
@@ -109,11 +110,12 @@ for eachFile in allAzks:
             currentSubject = IDsearch.search(line).group().split()[1]
         elif trialLine.match(line):
             trialNum += 1
-            outputFile.writerow([currentSubject] + 
-                                grabTrialInfo(line,indexesInID))
+            outputFile.writerow([currentSubject] +
+                                grabTrialInfo(line, indexesInID))
     if not subjectsDone == subjectsShouldBe:
         print("Number of subjects processed"
               " doesn't match what DMDX says it should be!")
-    else: print("Number of subjects matches what's listed in the file")
+    else:
+        print("Number of subjects matches what's listed in the file")
 
 f.close()
