@@ -11,30 +11,24 @@ subjectLine = re.compile('Subject\s[0-9]+')
 IDsearch = re.compile('ID\s[0-9]+[a-zA-Z]+')
 trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
 
-usingSettings = False
 
-## Looks for the settings file 'azkprocessor.conf', 
-## and if it doesn't exist, creates it
-try:
-    settingsFile = csv.reader(open("azkprocessor.conf", "r"), 
-                              dialect='excel')
+
+def askAboutSettings():
     print("Reuse settings from last time? \n (Y)es   (N)o")
-    askAboutSettings = str(input()).lower()
-    if askAboutSettings == 'y' or askAboutSettings== 'yes': 
-        usingSettings = True
-    elif askAboutSettings == 'n' or askAboutSettings == 'no':
-        usingSettings = False
-        writeSettingsFile = open("azkprocessor.conf", "w")
-except IOError:
-    writeSettingsFile = open("azkprocessor.conf", "w")
-    usingSettings = False
+    userResponse = str(input()).lower()
+    if userResponse in ['y', 'yes']: 
+        wantSettings = True
+    elif userResponse in ['n', 'no']:
+        wantSettings = False
+    else:
+        print("Unrecognised response! Please type 'y' or 'n' only\n")
+        wantSettings = askAboutSettings()
+    return wantSettings
 
-##print("How long are your item ID codes?")
-##IDLength = int(input())
-## If the user doesn't want to reuse last time's settings, 
-##  need to ask about the variables in the trial's ID number
-##  and where they can be found
-if usingSettings == False:
+def getNewSettings():
+    global thingsInID
+    global indexesInID
+    writeSettingsFile = open("azkprocessor.conf", "w")
     print("What variables need to be extracted"
           " from the ID for each trial? Type them"
           " one at a time, then ENTER when you're done")
@@ -68,13 +62,34 @@ if usingSettings == False:
                                 str(indexSettings[i][0]) + ',' + 
                                 str(indexSettings[i][1]) + '\n')
     writeSettingsFile.close()
-elif usingSettings == True:
+
+def getOldSettings():
+    global thingsInID
+    global indexesInID
     thingsInID=[]
     indexesInID = []
     for eachSetting in settingsFile:
         thingsInID.append(eachSetting[0])
         indexesInID.append(slice(int(eachSetting[1]),
                            int(eachSetting[2])))
+
+## Looks for the settings file 'azkprocessor.conf', 
+## and if it doesn't exist, creates it
+try:
+    settingsFile = csv.reader(open("azkprocessor.conf", "r"), 
+                              dialect='excel')
+    if askAboutSettings():
+        getOldSettings()
+    else:
+        getNewSettings()
+except IOError:
+    getNewSettings()
+
+##print("How long are your item ID codes?")
+##IDLength = int(input())
+## If the user doesn't want to reuse last time's settings, 
+##  need to ask about the variables in the trial's ID number
+##  and where they can be found
         
 
     
