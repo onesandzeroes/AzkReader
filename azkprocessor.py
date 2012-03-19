@@ -8,7 +8,7 @@ allAzks = glob.iglob('*.azk')
 
 subjectsInFile = re.compile('Subjects\sincorporated')
 subjectLine = re.compile('Subject\s[0-9]+')
-IDsearch = re.compile('ID\s[0-9]+[a-zA-Z]+')
+IDsearch = re.compile('ID\s*[0-9a-zA-Z]+')
 trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
 
 
