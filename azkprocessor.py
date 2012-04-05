@@ -11,24 +11,28 @@ subjectLine = re.compile('Subject\s[0-9]+')
 IDsearch = re.compile('ID\s*[0-9a-zA-Z]+')
 trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
 
-
-
-def askAboutSettings():
-    print("Reuse settings from last time? \n (Y)es   (N)o")
+def yesOrNo(message):
+    print(message)
+    print("(Y)es    (N)o")
     userResponse = str(input()).lower()
     if userResponse in ['y', 'yes']: 
-        wantSettings = True
+        respond = True
     elif userResponse in ['n', 'no']:
-        wantSettings = False
+        respond = False
     else:
         print("AzkReader doesn't understand what you typed! Please type 'y' or 'n' only\n")
-        wantSettings = askAboutSettings()
-    return wantSettings
+        respond = yesOrNo(message)
+    return respond
+
 
 def getNewSettings():
     global thingsInID
     global indexesInID
-    writeSettingsFile = open("azkprocessor.conf", "w")
+    global userFilename
+    print("What should the settings file for this dataset be called?")
+    userFilename = input()
+    settingsFilename = userFilename + '.conf'
+    writeSettingsFile = open(settingsFilename, "w")
     print("What variables need to be extracted"
           " from the ID for each trial? Type them"
           " one at a time, then ENTER when you're done")
@@ -64,9 +68,10 @@ def getNewSettings():
                                 str(indexSettings[i][1]) + '\n')
     writeSettingsFile.close()
 
-def getOldSettings():
+def getOldSettings(filename):
     global thingsInID
     global indexesInID
+    settingsFile = csv.reader(open(filename), dialect='excel')
     thingsInID=[]
     indexesInID = []
     for eachSetting in settingsFile:
@@ -74,17 +79,16 @@ def getOldSettings():
         indexesInID.append(slice(int(eachSetting[1]),
                            int(eachSetting[2])))
 
-## Looks for the settings file 'azkprocessor.conf', 
-## and if it doesn't exist, creates it
-try:
-    settingsFile = csv.reader(open("azkprocessor.conf", "r"), 
-                              dialect='excel')
-    if askAboutSettings():
-        getOldSettings()
-    else:
-        getNewSettings()
-except IOError:
+existingSettings = yesOrNo("Use an existing settings file?")
+if existingSettings:
+    # Replace this with a gui file picker at some point
+    print("What is the name of the settings file you want to use?")
+    print("Type the full name, including the extension")
+    getOldSettings(input())
+else:
     getNewSettings()
+    
+    
 
 ##print("How long are your item ID codes?")
 ##IDLength = int(input())
@@ -106,7 +110,7 @@ def grabTrialInfo(dmdxLine, IDindexes):
         trialInfo.append(str(code[each]))
     return trialInfo
 
-f = open('parsedAZK.csv', 'w', newline='')
+f = open(userFilename + '.csv', 'w', newline='')
 outputFile = csv.writer(f, dialect='excel')
 outputColumns = ['subject', 'itemcode', 'rt', 'correct', 'trialorder']
 for thing in thingsInID:
