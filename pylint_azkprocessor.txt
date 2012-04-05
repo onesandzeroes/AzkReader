@@ -1,6 +1,0 @@
-************* Module azkprocessor
-W: 81:grabTrialInfo: Redefining name 'line' from outer scope (line 101)
-C: 84:grabTrialInfo: More than one statement on a single line
-C: 93: Comma not followed by a space
-outputColumns = ['subject','itemcode','rt','correct','trialorder']
-                          ^^
