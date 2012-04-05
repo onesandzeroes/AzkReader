@@ -83,8 +83,9 @@ existingSettings = yesOrNo("Use an existing settings file?")
 if existingSettings:
     # Replace this with a gui file picker at some point
     print("What is the name of the settings file you want to use?")
-    print("Type the full name, including the extension")
-    getOldSettings(input())
+    print("(Leave out the .conf extension)")
+    userFilename = input()
+    getOldSettings(input() + '.conf')
 else:
     getNewSettings()
     
