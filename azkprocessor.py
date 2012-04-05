@@ -85,7 +85,7 @@ if existingSettings:
     print("What is the name of the settings file you want to use?")
     print("(Leave out the .conf extension)")
     userFilename = input()
-    getOldSettings(input() + '.conf')
+    getOldSettings(userFilename + '.conf')
 else:
     getNewSettings()
     
