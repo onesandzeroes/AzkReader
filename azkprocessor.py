@@ -27,8 +27,6 @@ def getNewSettings():
     global userFilename
     print("What should the settings file for this dataset be called?")
     userFilename = input()
-    settingsFilename = userFilename + '.conf'
-    writeSettingsFile = open(settingsFilename, "w")
     print("What variables need to be extracted"
           " from the ID for each trial? Type them"
           " one at a time, then ENTER when you're done")
@@ -58,11 +56,15 @@ def getNewSettings():
             end = int(enteredIndex)
             indexesInID.append(slice(start, end))
         indexSettings.append((start, end))
-    for i in range(0, len(thingsInID)):
-        writeSettingsFile.write(str(thingsInID[i]) + ',' +
-                                str(indexSettings[i][0]) + ',' +
-                                str(indexSettings[i][1]) + '\n')
-    writeSettingsFile.close()
+    writeSettingsFile(userFilename, thingsInID, indexSettings)
+
+def writeSettingsFile(filename, things, indexes):
+    settingsFile = csv.writer(open(filename + '.conf', 'w', newline=''), 
+                              dialect='excel'
+                              )
+    zipped = zip(things, indexes)
+    for i in zipped:
+        settingsFile.writerow([i[0], i[1][0], i[1][1]])
 
 def getOldSettings(filename):
     global thingsInID
