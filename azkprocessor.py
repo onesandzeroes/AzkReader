@@ -88,12 +88,15 @@ def askWhichFile():
     for optionNum, filename in enumerate(existingConfs):
         print('(' + str(optionNum + 1) + ') ' + filename)
     userInput = int(input())
-    userFilename = existingConfs[(userInput - 1)]
-    if userFilename == 'Other':
+    chosenFilename = existingConfs[(userInput - 1)]
+    if chosenFilename == 'Other':
         print("What is the name of the settings file you want to use?")
         print("(Leave out the .conf extension)")
-        userFilename = input() + '.conf'
-    getOldSettings(userFilename)
+        userFilename = input()
+        getOldSettings(userFilename + '.conf')
+    else:
+        userFilename = chosenFilename[:-5]
+        getOldSettings(chosenFilename)
 
 existingSettings = yesOrNo("Use an existing settings file?")
 if existingSettings:
