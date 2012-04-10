@@ -1,5 +1,5 @@
 
-Subjects incorporated to date: 001
+Subjects incorporated to date: 002
 Data file started on machine DELLGT52804
 
 **********************************************************************
@@ -238,7 +238,7 @@ Subject 1, 02/22/2012 12:23:52 on DELLGT52804, refresh 16.70ms, ID 777test
 1042430    608.01 600376.99
 1097112    790.02 602094.40
 
-Subject 2, 02/22/2012 12:23:52 on DELLGT52804, refresh 16.70ms, ID 888test
+Subject 2, 02/22/2012 12:23:52 on DELLGT52804, refresh 16.70ms
   Item       RT       COT
 !  Display error at msec 260.59, tick 11 in item 0, frame "amphibians, fish and reptiles."
 !    was blocked by Flip() not returning for 29.13ms

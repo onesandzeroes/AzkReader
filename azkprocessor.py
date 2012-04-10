@@ -89,17 +89,7 @@ if existingSettings:
 else:
     getNewSettings()
     
-    
-
-##print("How long are your item ID codes?")
-##IDLength = int(input())
-## If the user doesn't want to reuse last time's settings, 
-##  need to ask about the variables in the trial's ID number
-##  and where they can be found
-        
-
-
-def grabTrialInfo(dmdxLine, IDindexes):
+def grabTrialInfo(dmdxLine, IDindexes, trialNum):
     code = str(dmdxLine.split()[0])
     rt = dmdxLine.split()[1]
     if float(rt) > 0:
@@ -110,6 +100,18 @@ def grabTrialInfo(dmdxLine, IDindexes):
     for each in IDindexes:
         trialInfo.append(str(code[each]))
     return trialInfo
+    
+def lookForID(dmdxLine, filename):
+    global missingIDs
+    searched = IDsearch.search(dmdxLine)
+    if searched:
+        subID = searched.group().split()[1]
+    else: 
+        missingIDs += 1
+        print('Subject ID missing in ' + filename)
+        subID = 'missing' + str(missingIDs)
+        print('Replaced with ' + subID)
+    return subID
 
 f = open(userFilename + '.csv', 'w', newline='')
 outputFile = csv.writer(f, dialect='excel')
@@ -118,8 +120,9 @@ for thing in thingsInID:
     outputColumns.append(thing)
 outputFile.writerow(outputColumns)
 
-for eachFile in allAzks:
-    currentFile = open(eachFile, 'r')
+def parseFile(filename):
+    global missingIDs
+    currentFile = open(filename)
     subjectsDone = 0
     for line in currentFile:
         line = line.strip()
@@ -127,16 +130,21 @@ for eachFile in allAzks:
             subjectsShouldBe = int(line.split(' ')[-1])
         elif subjectLine.match(line):
             subjectsDone += 1
-            trialNum = 0
-            currentSubject = IDsearch.search(line).group().split()[1]
+            trialNumber = 0
+            currentSubject = lookForID(line, filename)
         elif trialLine.match(line):
-            trialNum += 1
+            trialNumber += 1
             outputFile.writerow([currentSubject] +
-                                grabTrialInfo(line, indexesInID))
+                                grabTrialInfo(line, indexesInID, trialNumber)
+                                )
     if not subjectsDone == subjectsShouldBe:
         print("Number of subjects processed"
               " doesn't match what DMDX says it should be!")
     else:
         print("Number of subjects matches what's listed in the file")
+
+for eachFile in allAzks:
+    missingIDs = 0
+    parseFile(eachFile)
 
 f.close()
