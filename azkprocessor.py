@@ -78,14 +78,26 @@ def getOldSettings(filename):
         thingsInID.append(eachSetting[0])
         indexesInID.append(slice(int(eachSetting[1]),
                            int(eachSetting[2])))
+                         
+def askWhichFile():
+    global userFilename
+    # Replace this with a gui file picker at some point
+    print("Which settings file do you want to use?")
+    existingConfs = glob.glob('*.conf')
+    existingConfs.append('Other')
+    for optionNum, filename in enumerate(existingConfs):
+        print('(' + str(optionNum + 1) + ') ' + filename)
+    userInput = int(input())
+    userFilename = existingConfs[(userInput - 1)]
+    if userFilename == 'Other':
+        print("What is the name of the settings file you want to use?")
+        print("(Leave out the .conf extension)")
+        userFilename = input() + '.conf'
+    getOldSettings(userFilename)
 
 existingSettings = yesOrNo("Use an existing settings file?")
 if existingSettings:
-    # Replace this with a gui file picker at some point
-    print("What is the name of the settings file you want to use?")
-    print("(Leave out the .conf extension)")
-    userFilename = input()
-    getOldSettings(userFilename + '.conf')
+    askWhichFile()
 else:
     getNewSettings()
     
