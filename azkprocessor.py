@@ -42,22 +42,26 @@ def getNewSettings():
           " found in the ID string. \n"
           "If they are longer than one digit,"
           " type them in the form '2-4' \n")
-    indexesInID = []
-    indexSettings = []
-    for eachThing in thingsInID:
+    indexesInID, indexSettings = getIndexes(thingsInID)
+    writeSettingsFile(userFilename, thingsInID, indexSettings)
+
+def getIndexes(idThings):
+    idIndexes = []
+    idSettings = []
+    for eachThing in idThings:
         print(str(eachThing))
         enteredIndex = str(input())
         if len(enteredIndex) > 1:
             start = int(enteredIndex.split('-')[0]) - 1
             end = int(enteredIndex.split('-')[1])
-            indexesInID.append(slice(start, end))
+            idIndexes.append(slice(start, end))
         else:
             start = int(enteredIndex) - 1
             end = int(enteredIndex)
-            indexesInID.append(slice(start, end))
-        indexSettings.append((start, end))
-    writeSettingsFile(userFilename, thingsInID, indexSettings)
-
+            idIndexes.append(slice(start, end))
+        idSettings.append((start, end))
+    return idIndexes, idSettings
+    
 def writeSettingsFile(filename, things, indexes):
     settingsFile = csv.writer(open(filename + '.conf', 'w', newline=''), 
                               dialect='excel'
