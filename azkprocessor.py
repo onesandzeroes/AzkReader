@@ -4,12 +4,7 @@ import re
 import glob
 import csv
 
-allAzks = glob.iglob('*.azk')
 
-subjectsInFile = re.compile('Subjects\sincorporated')
-subjectLine = re.compile('Subject\s[0-9]+')
-IDsearch = re.compile('ID\s*[0-9a-zA-Z]+')
-trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
 
 def yesOrNo(message):
     print(message)
@@ -20,7 +15,8 @@ def yesOrNo(message):
     elif userResponse in ['n', 'no']:
         respond = False
     else:
-        print("AzkReader doesn't understand what you typed! Please type 'y' or 'n' only\n")
+        print("AzkReader doesn't understand what you typed!"
+              "Please type 'y' or 'n' only\n")
         respond = yesOrNo(message)
     return respond
 
@@ -98,11 +94,7 @@ def askWhichFile():
         userFilename = chosenFilename[:-5]
         getOldSettings(chosenFilename)
 
-existingSettings = yesOrNo("Use an existing settings file?")
-if existingSettings:
-    askWhichFile()
-else:
-    getNewSettings()
+
     
 def grabTrialInfo(dmdxLine, IDindexes, trialNum):
     code = str(dmdxLine.split()[0])
@@ -118,6 +110,7 @@ def grabTrialInfo(dmdxLine, IDindexes, trialNum):
     
 def lookForID(dmdxLine, filename):
     global missingIDs
+    IDsearch = re.compile('ID\s*[0-9a-zA-Z]+')
     searched = IDsearch.search(dmdxLine)
     if searched:
         subID = searched.group().split()[1]
@@ -127,16 +120,12 @@ def lookForID(dmdxLine, filename):
         subID = 'missing' + str(missingIDs)
         print('Replaced with ' + subID)
     return subID
-
-f = open(userFilename + '.csv', 'w', newline='')
-outputFile = csv.writer(f, dialect='excel')
-outputColumns = ['subject', 'itemcode', 'rt', 'correct', 'trialorder']
-for thing in thingsInID:
-    outputColumns.append(thing)
-outputFile.writerow(outputColumns)
-
+    
 def parseFile(filename):
     global missingIDs
+    subjectsInFile = re.compile('Subjects\sincorporated')
+    subjectLine = re.compile('Subject\s[0-9]+')
+    trialLine = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
     currentFile = open(filename)
     subjectsDone = 0
     for line in currentFile:
@@ -149,15 +138,30 @@ def parseFile(filename):
             currentSubject = lookForID(line, filename)
         elif trialLine.match(line):
             trialNumber += 1
-            outputFile.writerow([currentSubject] +
-                                grabTrialInfo(line, indexesInID, trialNumber)
-                                )
+            trialInfo = grabTrialInfo(line, indexesInID, trialNumber)
+            outputFile.writerow([currentSubject] + trialInfo)
     if not subjectsDone == subjectsShouldBe:
         print("Number of subjects processed"
               " doesn't match what DMDX says it should be!")
     else:
         print("Number of subjects matches what's listed in the file")
 
+
+existingSettings = yesOrNo("Use an existing settings file?")
+if existingSettings:
+    askWhichFile()
+else:
+    getNewSettings()
+
+f = open(userFilename + '.csv', 'w', newline='')
+outputFile = csv.writer(f, dialect='excel')
+outputColumns = ['subject', 'itemcode', 'rt', 'correct', 'trialorder']
+for thing in thingsInID:
+    outputColumns.append(thing)
+outputFile.writerow(outputColumns)
+
+
+allAzks = glob.iglob('*.azk')
 for eachFile in allAzks:
     missingIDs = 0
     parseFile(eachFile)
