@@ -68,3 +68,5 @@ class newSettings(allSettings):
         self.getVars()
         self.indexes()
         self.writeSettings()
+        
+# Add some if __name__ = '__main__' tests down here
