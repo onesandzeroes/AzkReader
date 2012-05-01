@@ -14,5 +14,5 @@ It looks for the .azk files that DMDX produces in the folder the script is run
 from- until this is changed, it's best to copy the script to the folder that
 contains *all* the .azk files for your experiment, and run it from there.
 
-The final file produced is csv file, which should be easily importable into R
+The final file produced is a csv file, which should be easily importable into R
 or the data analysis software of your choice.

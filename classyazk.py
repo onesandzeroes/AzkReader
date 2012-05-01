@@ -62,13 +62,11 @@ class newSettings(allSettings):
                 end = int(enteredIndex.split('-')[1])
             else:
                 start = int(enteredIndex) - 1
-                end = int(enteredIndex)
+                end = start + 1
             self.codeIndexes.append((start, end))
         for pair in self.codeIndexes:
             self.codeSlices.append(self.createSlice(*pair))
-        print(self.codeIndexes)
-        for each in self.codeSlices:
-            print('123456789'[each])
+
            
 # Change the conf files to have a header, use DictReader to parse them,
 # i.e.
