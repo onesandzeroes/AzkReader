@@ -25,13 +25,3 @@ if useOld:
 else:
     Settings = classysettings.newSettings()
    
-# Change the conf files to have a header, use DictReader to parse them,
-# i.e.
-# def writeSettingsFile(filename, things, indexes):
-    # settingsFile = csv.writer(open(filename + '.conf', 'w', newline=''), 
-                              # dialect='excel'
-                              # )
-    # settingsFile.writerow(['variable', 'start', 'end'])
-    # zipped = zip(things, indexes)
-    # for i in zipped:
-        # settingsFile.writerow([i[0], i[1][0], i[1][1]])
