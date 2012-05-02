@@ -3,6 +3,7 @@
 import re
 import classysettings
 import csv
+import glob
 
 def yesOrNo(message):
     print(message)
@@ -19,49 +20,87 @@ def yesOrNo(message):
     return respond    
             
 # Not sure if this is the best way to choose an old or new file?            
-useOld = yesOrNo("Use an existing settings file?")
-if useOld:
-    Settings = classysettings.oldSettings()
-else:
-    Settings = classysettings.newSettings()
-   
+# Update: Seems a bit more sensible now
 class AzkFiles:
+    allFiles = glob.iglob('Input/*.azk')
+    def __init__(self):
+        self.useOld = yesOrNo("Use an existing settings file?")
+        if self.useOld:
+            self.Settings = classysettings.oldSettings()
+        else:
+            self.Settings = classysettings.newSettings()
+        self.outfile = open(self.Settings.userFilename + '-output.csv',
+                            'w', 
+                            newline=''
+                            )
+        self.csv_out = csv.writer(self.outfile, dialect='excel')
+        self.csv_out.writerow(['subject', 
+                               'itemcode', 
+                               'rt', 
+                               'correct', 
+                               'trialnum'] +
+                               self.Settings.codeVars
+                               )
+        for eachFile in AzkFiles.allFiles:
+            self.current = Azk(eachFile, self)
+        self.outfile.close()
+
+# The way I'm currently coding this, it needs an AzkInstance passed in so
+# it can read the settings and find the output file. Shouldn't be too clunky 
+# since it only needs one call to AzkFiles to run the whole thing 
+class Azk:
     totalSubs_re = re.compile('Subjects\sincorporated')
     newSub_re = re.compile('Subject\s[0-9]+')
     trialLine_re = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
+    subID_re = re.compile('ID\s*[0-9a-zA-Z]+')
     totalSubs = 0
     totalMissing = 0
-    allFiles = glob.iglob('*.azk')
-    def __init__(self):
-        for eachFile in allFiles:
-            current = Azk(eachfile)
-
-class Azk(AzkFiles):
-    subID_re = re.compile('ID\s*[0-9a-zA-Z]+')
-    def lookforID(self, line):
-        searched = self.subID_re.search(dmdxLine)
-        if searched:
-            subID = searched.group().split()[1]
-        else: 
-            AzkFiles.totalMissing += 1
-            print('Subject ID missing in ' + self.filename)
-            subID = 'missing' + str(AzkFiles.totalMissing)
-            print('Replaced with ' + subID)
-    def lineType(self, line):
-        line = line.strip()
-        if totalSubs_re.match(line):
-            self.SubsShouldBe = int(line.split(' ')[-1])
-        elif newSub_re.match(line):
-            self.fileSubs += 1
-            self.currentSub = self.lookForID(line)
-            self.currentTrial = 0
-        elif trialLine.match(line):
-            self.currentTrial += 1
-            
-            
-    def __init__(self, filename):
+    def __init__(self, filename, AzkInstance):
+        self.codeVars = AzkInstance.Settings.codeVars
+        self.codeSlices = AzkInstance.Settings.codeSlices
+        self.out = AzkInstance.csv_out
         self.filename = filename
         self.fileSubs = 0
-        self.currentTrial = 0
-
-class trialLine
+        self.missingSubs = 0
+        self.inputfile = open(self.filename, 'r')
+        for line in self.inputfile:
+            line = line.strip()
+            self.lineType(line)
+    def lookForID(self, line):
+        searched = Azk.subID_re.search(line)
+        if searched:
+            self.currentSub = searched.group().split()[1]
+        else: 
+            self.missingSubs += 1
+            Azk.totalMissing += 1
+            print('Subject ID missing in ' + self.filename)
+            self.currentSub = 'missing' + str(Azk.totalMissing)
+            print('Replaced with ' + self.currentSub)
+    def lineType(self, line):
+        line = line.strip()
+        if Azk.totalSubs_re.match(line):
+            self.SubsShouldBe = int(line.split(' ')[-1])
+        elif Azk.newSub_re.match(line):
+            self.fileSubs += 1
+            self.lookForID(line)
+            self.currentTrial = 0
+        elif Azk.trialLine_re.match(line):
+            self.currentTrial += 1
+            self.processTrial(line)
+    def processTrial(self, line):
+        splitline = line.split()
+        code = str(splitline[0])
+        rt = float(splitline[1])
+        if rt > 0:
+            correct = 1
+        else:
+            correct = 0
+        rt = abs(rt)
+        trialInfo = [self.currentSub, code, rt, correct, self.currentTrial]
+        for eachslice in self.codeSlices:
+            trialInfo.append(code[eachslice])
+        self.out.writerow(trialInfo)
+        
+if __name__ == '__main__':
+    # Start the whole thing with a call to AzkFiles     
+    parse = AzkFiles()

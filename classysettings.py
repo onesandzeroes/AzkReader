@@ -21,17 +21,18 @@ class oldSettings(allSettings):
     def askWhich(self):
         for optionNum, filename in enumerate(self.found_confs):
             print('(' + str(optionNum + 1) + ') ' + filename)
-        fileChoice = int(input)
+        fileChoice = int(input())
         self.chosen_file = self.found_confs[fileChoice - 1]
     def __init__(self):
         self.askWhich()
         self.readOld()
+        self.userFilename = self.chosen_file.split('.')[0]
             
 class newSettings(allSettings):
     codeIndexes = []
     def getVars(self):
         print("What variables need to be extracted from the ID number for each"
-              "trial? Type them one at a time, then ENTER when you're done"
+              " trial? Type them one at a time, then ENTER when you're done"
               )
         entered = input()
         while entered:
