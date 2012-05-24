@@ -3,3 +3,5 @@ test.csv
 __pycache__/*
 __pycache__*
 *.py[cod]
+classytest.conf
+classytest-output.csv
