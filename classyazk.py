@@ -4,7 +4,8 @@ import re
 import classysettings
 import csv
 import glob
-from folderbrowser import FolderBrowser
+import os
+from sys import exit
 
 def yesOrNo(message):
     print(message)
@@ -22,7 +23,7 @@ def yesOrNo(message):
             
 # Not sure if this is the best way to choose an old or new file?            
 # Update: Seems a bit more sensible now
-class AzkFiles(FolderBrowser):
+class AzkFiles:
     def __init__(self):
         self.get_azk_folder()
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
@@ -47,11 +48,24 @@ class AzkFiles(FolderBrowser):
             self.current = Azk(eachFile, self)
         self.outfile.close()
     def get_azk_folder(self):
-        message = """
-Navigate to the folder where the current batch of azk 
-files is located, then choose DONE
+        print("""
+Which folder are your .azk files located in?
+If you cannot see them in this list, you need
+to copy the folder containing them to the
+same folder as this script. 
 """
-        self.azk_folder = self.goto_folder(message)
+        )
+        dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
+        dir_dict = {ind: value for ind, value in enumerate(dirs)}
+        for x in range(len(dir_dict)):
+            print('(' + str(x) + ') ' + dir_dict[x])
+        resp = int(input())
+        if dir_dict[resp] == 'EXIT':
+            exit()
+        else:
+            self.azk_folder = dir_dict[resp]
+        
+        
         
 # The way I'm currently coding this, it needs an AzkInstance passed in so
 # it can read the settings and find the output file. Shouldn't be too clunky 
