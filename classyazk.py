@@ -4,6 +4,7 @@ import re
 import classysettings
 import csv
 import glob
+from folderbrowser import FolderBrowser
 
 def yesOrNo(message):
     print(message)
@@ -21,9 +22,10 @@ def yesOrNo(message):
             
 # Not sure if this is the best way to choose an old or new file?            
 # Update: Seems a bit more sensible now
-class AzkFiles:
-    allFiles = glob.iglob('Input/*.azk')
+class AzkFiles(FolderBrowser):
     def __init__(self):
+        self.get_azk_folder()
+        self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
         self.useOld = yesOrNo("Use an existing settings file?")
         if self.useOld:
             self.Settings = classysettings.oldSettings()
@@ -41,10 +43,16 @@ class AzkFiles:
                                'trialnum'] +
                                self.Settings.codeVars
                                )
-        for eachFile in AzkFiles.allFiles:
+        for eachFile in self.allFiles:
             self.current = Azk(eachFile, self)
         self.outfile.close()
-
+    def get_azk_folder(self):
+        message = """
+Navigate to the folder where the current batch of azk 
+files is located, then choose DONE
+"""
+        self.azk_folder = self.goto_folder(message)
+        
 # The way I'm currently coding this, it needs an AzkInstance passed in so
 # it can read the settings and find the output file. Shouldn't be too clunky 
 # since it only needs one call to AzkFiles to run the whole thing 
