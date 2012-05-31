@@ -1,7 +1,11 @@
 test.conf
 test.csv
+classytest-output.csv
+TestInput*
 __pycache__/*
 __pycache__*
 *.py[cod]
-classytest.conf
-classytest-output.csv
+TestInput
+CompiledExe
+CompiledExe*
+CompiledExe/*
