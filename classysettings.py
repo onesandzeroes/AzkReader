@@ -32,7 +32,7 @@ class newSettings(allSettings):
     codeIndexes = []
     def getVars(self):
         print("What variables need to be extracted from the ID number for each"
-              " trial? Type them one at a time, then ENTER when you're done"
+              " trial? Type them one at a time, then ENTER when you're done\n"
               )
         entered = input()
         while entered:
@@ -64,7 +64,13 @@ class newSettings(allSettings):
             csv_out.writerow([i[0], i[1][0], i[1][1]])
         out.close()
     def __init__(self):
-        print("What should the settings file for this dataset be called?")
+        print("""
+What should the settings file for this dataset be called?
+(Just type a short name, e.g. the name of your experiment.
+ Don't worry about the file extension, it gets added
+ automatically)
+"""
+             )
         self.userFilename = input()
         self.getVars()
         self.indexes()

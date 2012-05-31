@@ -9,7 +9,7 @@ from sys import exit
 
 def yesOrNo(message):
     print(message)
-    print("(Y)es    (N)o")
+    print("(Y)es    (N)o\n")
     userResponse = str(input()).lower()
     if userResponse in ['y', 'yes']: 
         respond = True
@@ -59,6 +59,7 @@ same folder as this script.
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
         for x in range(len(dir_dict)):
             print('(' + str(x) + ') ' + dir_dict[x])
+        print()
         resp = int(input())
         if dir_dict[resp] == 'EXIT':
             exit()
