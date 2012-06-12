@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import re
-import classysettings
+import azksettings
 import csv
 import glob
 import os
@@ -29,9 +29,9 @@ class AzkFiles:
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
         self.useOld = yesOrNo("Use an existing settings file?")
         if self.useOld:
-            self.Settings = classysettings.oldSettings()
+            self.Settings = azksettings.oldSettings()
         else:
-            self.Settings = classysettings.newSettings()
+            self.Settings = azksettings.newSettings()
         self.outfile = open(self.Settings.userFilename + '-output.csv',
                             'w', 
                             newline=''
