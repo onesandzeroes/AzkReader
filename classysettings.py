@@ -21,7 +21,7 @@ class oldSettings(allSettings):
     def askWhich(self):
         print('Which settings file should be used?\n'
               '(if you can\'t see it, copy it to the same folder as this' 
-              'script)'
+              ' script)\n'
               )
         for optionNum, filename in enumerate(self.found_confs):
             print('(' + str(optionNum + 1) + ') ' + filename)
