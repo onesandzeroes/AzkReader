@@ -11,10 +11,14 @@ how your variables are encoded in the DMDX item numbers. Since this is a
 bit tedious, it saves this information to a settings file so you can repeat
 the process later. 
 
-It looks for the .azk files that DMDX produces in an 'Input' folder in the
-folder the script is run from- for the new class-based version, both 
-classyazk.py and classysettings.py need to be present in the same folder for 
-it to work, as I haven't done any proper packaging.
+Both the *azkreader.py* and *azksettings.py* scripts are required, and must
+be located in the same folder.
+
+When running the script, put all of your .azk files from a 
+single experiment/list in a single folder, then move that folder to the 
+same directory as the *azkreader.py* script. The program will ask you which 
+sub-directory your files are located in, then process all of those files in 
+one go, giving you a single output file.
 
 The final file produced is a csv file, which should be easily importable into R
 or the data analysis software of your choice.
