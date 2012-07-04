@@ -79,7 +79,7 @@ same folder as this script.
         )
         dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
-        for x in range(len(dir_dict)):
+        for x in dir_dict:
             print('(' + str(x) + ') ' + dir_dict[x])
         print()
         resp = int(input())
