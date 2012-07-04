@@ -72,10 +72,10 @@ same folder as this script.
 # it can read the settings and find the output file. Shouldn't be too clunky 
 # since it only needs one call to AzkFiles to run the whole thing 
 class Azk:
-    totalSubs_re = re.compile('Subjects\sincorporated')
-    newSub_re = re.compile('Subject\s[0-9]+')
-    trialLine_re = re.compile('\s*[0-9]+\s+-*[0-9\.]+')
-    subID_re = re.compile('ID\s*[0-9a-zA-Z]+')
+    totalSubs_re = re.compile('^Subjects\sincorporated')
+    newSub_re = re.compile('^Subject\s[0-9]+')
+    trialLine_re = re.compile('\s*[0-9]+\s+-?[0-9]+\.[0-9]+')
+    subID_re = re.compile('ID\s+[0-9a-zA-Z]+')
     totalSubs = 0
     totalMissing = 0
     def __init__(self, filename, AzkInstance):
