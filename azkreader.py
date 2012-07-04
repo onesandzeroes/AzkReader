@@ -9,9 +9,10 @@ from sys import exit
 
 def yesOrNo(message):
     """"
-Takes a yes or no question as its argument, and asks for a response.
-Will accept 'y', 'yes', 'n' or 'no', returning True or False as appropriate.
-If it gets an unrecognized input, gives a warning and asks again
+    Takes a yes or no question as its argument, and asks for a response.
+    Will accept 'y', 'yes', 'n' or 'no', returning True or False as 
+    appropriate. If it gets an unrecognized input, gives a warning and asks 
+    again.
     """
     print(message)
     print("(Y)es    (N)o\n")
@@ -30,6 +31,11 @@ If it gets an unrecognized input, gives a warning and asks again
             
 
 class AzkFiles:
+    """
+    Controller class that sets the input folder, gets the variable settings,
+    creates the output file, and then creates an Azk() instance to process
+    each individual .azk file
+    """
     def __init__(self):
         # Ask which folder the desired azk files are in
         self.get_azk_folder()
@@ -94,6 +100,10 @@ same folder as this script.
 # it can read the settings and find the output file. Shouldn't be too clunky 
 # since it only needs one call to AzkFiles to run the whole thing 
 class Azk:
+    """
+    Takes the filename of an azk file as input, and extracts the data from
+    that file.
+    """
     totalSubs_re = re.compile('^Subjects\sincorporated')
     newSub_re = re.compile('^Subject\s[0-9]+')
     trialLine_re = re.compile('\s*[0-9]+\s+-?[0-9]+\.[0-9]+')
@@ -172,6 +182,6 @@ conditions as determined by codeVars, codeSlices
             trialInfo.append(code[eachslice])
         self.out.writerow(trialInfo)
         
-if __name__ == '__main__':
+#if __name__ == '__main__':
     # Start the whole thing with a call to AzkFiles     
-    parse = AzkFiles()
+    #parse = AzkFiles()
