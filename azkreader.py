@@ -8,6 +8,11 @@ import os
 from sys import exit
 
 def yesOrNo(message):
+    """"
+Takes a yes or no question as its argument, and asks for a response.
+Will accept 'y', 'yes', 'n' or 'no', returning True or False as appropriate.
+If it gets an unrecognized input, gives a warning and asks again
+    """
     print(message)
     print("(Y)es    (N)o\n")
     userResponse = str(input()).lower()
@@ -18,14 +23,17 @@ def yesOrNo(message):
     else:
         print("AzkReader doesn't understand what you typed!"
               "Please type 'y' or 'n' only\n")
+        # Recursive call to yesOrNo(), final response is passed up and
+        #returned
         respond = yesOrNo(message)
     return respond    
             
-# Not sure if this is the best way to choose an old or new file?            
-# Update: Seems a bit more sensible now
+
 class AzkFiles:
     def __init__(self):
+        # Ask which folder the desired azk files are in
         self.get_azk_folder()
+        # Create a list of all the azk files in that folder
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
         self.useOld = yesOrNo("Use an existing settings file?")
         if self.useOld:
@@ -36,6 +44,8 @@ class AzkFiles:
                             'w', 
                             newline=''
                             )
+        # Create the final output file here, and append to it when processing
+        # each of the individual files
         self.csv_out = csv.writer(self.outfile, dialect='excel')
         self.csv_out.writerow(['subject', 
                                'itemcode', 
@@ -48,6 +58,12 @@ class AzkFiles:
             self.current = Azk(eachFile, self)
         self.outfile.close()
     def get_azk_folder(self):
+        """ 
+Print a numbered list of the subfolders in the working directory (i.e. the
+directory the script is run from), and set the input folder to the
+directory the user chooses.
+Doesn't actually return anything, just sets self.azk_folder.
+"""
         print("""
 Which folder are your .azk files located in?
 If you cannot see them in this list, you need
@@ -76,6 +92,8 @@ class Azk:
     newSub_re = re.compile('^Subject\s[0-9]+')
     trialLine_re = re.compile('\s*[0-9]+\s+-?[0-9]+\.[0-9]+')
     subID_re = re.compile('ID\s+[0-9a-zA-Z]+')
+    # Set these as class variables so they can persist across the individual
+    # instances
     totalSubs = 0
     totalMissing = 0
     def __init__(self, filename, AzkInstance):
@@ -83,23 +101,19 @@ class Azk:
         self.codeSlices = AzkInstance.Settings.codeSlices
         self.out = AzkInstance.csv_out
         self.filename = filename
+        self.inputfile = open(self.filename, 'r')
         self.fileSubs = 0
         self.missingSubs = 0
-        self.inputfile = open(self.filename, 'r')
         for line in self.inputfile:
-            line = line.strip()
             self.lineType(line)
-    def lookForID(self, line):
-        searched = Azk.subID_re.search(line)
-        if searched:
-            self.currentSub = searched.group().split()[1]
-        else: 
-            self.missingSubs += 1
-            Azk.totalMissing += 1
-            print('Subject ID missing in ' + self.filename)
-            self.currentSub = 'missing' + str(Azk.totalMissing)
-            print('Replaced with ' + self.currentSub)
     def lineType(self, line):
+        """
+Use regular expression matching to identify whether the current line is:
+    - The line listing the total number of subjects in the file
+    - The start of a new subject's results
+    - The result of an individual trial, i.e. an item number and rt
+The regular expressions are defined as class variables, e.g. Azk.totalSubs_re
+"""
         line = line.strip()
         if Azk.totalSubs_re.match(line):
             self.SubsShouldBe = int(line.split(' ')[-1])
@@ -110,16 +124,44 @@ class Azk:
         elif Azk.trialLine_re.match(line):
             self.currentTrial += 1
             self.processTrial(line)
+    def lookForID(self, line):
+        """
+Takes a line identifying a new subject's results, and locates the
+alphanumeric subject ID. If not found, sets the subject ID to missingX,
+where X is the number of subjects with missing subject ID's in the current 
+run.
+"""
+        searched = Azk.subID_re.search(line)
+        if searched:
+            self.currentSub = searched.group().split()[1]
+        else: 
+            self.missingSubs += 1
+            Azk.totalMissing += 1
+            print('Subject ID missing in ' + self.filename)
+            self.currentSub = 'missing' + str(Azk.totalMissing)
+            print('Replaced with ' + self.currentSub)
+
     def processTrial(self, line):
+        """
+Split the trial line into item number and rt, determine if the response was
+correct, and write all the data to the output file, including the current
+conditions as determined by codeVars, codeSlices
+"""
         splitline = line.split()
         code = str(splitline[0])
         rt = float(splitline[1])
+        # Grab the COT, although it's not currently being used
+        try:
+            cot = float(splitline[2])
+        except IndexError:
+            cot = None
         if rt > 0:
             correct = 1
         else:
             correct = 0
         rt = abs(rt)
         trialInfo = [self.currentSub, code, rt, correct, self.currentTrial]
+        # Segment the item number according to the user-defined variables
         for eachslice in self.codeSlices:
             trialInfo.append(code[eachslice])
         self.out.writerow(trialInfo)
