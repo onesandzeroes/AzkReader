@@ -33,6 +33,12 @@ class AzkFiles:
     def __init__(self):
         # Ask which folder the desired azk files are in
         self.get_azk_folder()
+        #Check that there actually are azk files in there
+        self.check_Azk = glob.glob(self.azk_folder + '/*.azk')
+        while len(self.check_Azk) == 0:
+            print("\nERROR: No azk files found. Was that the right folder?")
+            self.get_azk_folder()
+            self.check_Azk = glob.glob(self.azk_folder + '/*.azk')
         # Create a list of all the azk files in that folder
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
         self.useOld = yesOrNo("Use an existing settings file?")
