@@ -3,6 +3,9 @@ import csv
 
 # Rename 'thingsInID' to 'codeVars', 'indexesInID' to 'codeSlices'
 class allSettings:
+    """Parent class that stores the variable names and indexes that will
+    be used to segment the item number for each trial.
+    """
     codeVars = []
     codeSlices = []
     def createSlice(self, start, end):
@@ -11,6 +14,7 @@ class allSettings:
 
 # Leave out the 'Other' option for the moment, it's not really needed
 class oldSettings(allSettings):
+    """Called when the user is using an existing .conf file. """
     found_confs = glob.glob('*.conf')
     def readOld(self):
         setting_csv = csv.DictReader(open(self.chosen_file), dialect='excel')
