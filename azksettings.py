@@ -15,26 +15,26 @@ class allSettings:
 # Leave out the 'Other' option for the moment, it's not really needed
 class oldSettings(allSettings):
     """Called when the user is using an existing .conf file. """
-    found_confs = glob.glob('*.conf')
-    def readOld(self):
-        setting_csv = csv.DictReader(open(self.chosen_file), dialect='excel')
+    def readOld(self, filename):
+        setting_csv = csv.DictReader(open(filename), dialect='excel')
         for row in setting_csv:
             self.codeVars.append(row['variable'])
             index_slice = self.createSlice(row['start'], row['end'])
             self.codeSlices.append(index_slice)
     def askWhich(self):
-        print('Which settings file should be used?\n'
-              '(if you can\'t see it, copy it to the same folder as this' 
-              ' script)\n'
-              )
+        print("""Which settings file should be used?
+              (if you can't see it, copy it to the same folder 
+              as this script)""")
         for optionNum, filename in enumerate(self.found_confs):
             print('(' + str(optionNum + 1) + ') ' + filename)
-        fileChoice = int(input())
-        self.chosen_file = self.found_confs[fileChoice - 1]
+        user_input = int(input())
+        chosen_file = self.found_confs[user_input - 1]
+        return chosen_file
     def __init__(self):
-        self.askWhich()
-        self.readOld()
-        self.userFilename = self.chosen_file.split('.')[0]
+        self.found_confs = glob.glob('*.conf')
+        use_file =self.askWhich()
+        self.readOld(use_file)
+        self.userFilename = use_file.split('.')[0]
             
 class newSettings(allSettings):
     codeIndexes = []
@@ -47,9 +47,8 @@ class newSettings(allSettings):
             self.codeVars.append(entered)
             entered = input()
     def indexes(self):
-        print("Now type where those values are found in the item number.\n"
-              "If they span multiple digits, type them in the form '2-4'\n"
-              )
+        print("""Now type where those values are found in the item number.
+              If they span multiple digits, type them in the form '2-4'.""")
         for var in self.codeVars:
             print(var)
             enteredIndex = str(input())
@@ -72,13 +71,10 @@ class newSettings(allSettings):
             csv_out.writerow([i[0], i[1][0], i[1][1]])
         out.close()
     def __init__(self):
-        print("""
-What should the settings file for this dataset be called?
-(Just type a short name, e.g. the name of your experiment.
- Don't worry about the file extension, it gets added
- automatically)
-"""
-             )
+        print("""What should the settings file for this dataset be called?
+        (Just type a short name, e.g. the name of your experiment.
+        Don't worry about the file extension, it gets added
+        automatically)""")
         self.userFilename = input()
         self.getVars()
         self.indexes()
