@@ -8,8 +8,7 @@ import os
 from sys import exit
 
 def yesOrNo(message):
-    """"
-    Takes a yes or no question as its argument, and asks for a response.
+    """"Takes a yes or no question as its argument, and asks for a response.
     Will accept 'y', 'yes', 'n' or 'no', returning True or False as 
     appropriate. If it gets an unrecognized input, gives a warning and asks 
     again.
@@ -31,10 +30,10 @@ def yesOrNo(message):
             
 
 class AzkFiles:
-    """
-    Controller class that sets the input folder, gets the variable settings,
+    """Controller class that sets the input folder, gets the variable settings,
     creates the output file, and then creates an Azk() instance to process
     each individual .azk file
+    Call this class to start the parsing process.
     """
     def __init__(self):
         # Ask which folder the desired azk files are in
@@ -70,18 +69,16 @@ class AzkFiles:
             self.current = Azk(eachFile, self)
         self.outfile.close()
     def get_azk_folder(self):
-        """ 
-Print a numbered list of the subfolders in the working directory (i.e. the
-directory the script is run from), and set the input folder to the
-directory the user chooses.
-Doesn't actually return anything, just sets self.azk_folder.
-"""
-        print("""
-Which folder are your .azk files located in?
-If you cannot see them in this list, you need
-to copy the folder containing them to the
-same folder as this script. 
-"""
+        """ Print a numbered list of the subfolders in the working directory 
+        (i.e. the directory the script is run from), and set the input folder 
+        to the directory the user chooses.
+        Doesn't actually return anything, just sets self.azk_folder.
+        """
+        print("""Which folder are your .azk files located in?
+        If you cannot see them in this list, you need
+        to copy the folder containing them to the
+        same folder as this script. 
+        """
         )
         dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
@@ -123,13 +120,14 @@ class Azk:
         for line in self.inputfile:
             self.lineType(line)
     def lineType(self, line):
+        """ Use regular expression matching to identify whether the 
+        current line is:
+        - The line listing the total number of subjects in the file
+        - The start of a new subject's results
+        - The result of an individual trial, i.e. an item number and rt
+        The regular expressions are defined as class variables, 
+        e.g. Azk.totalSubs_re
         """
-Use regular expression matching to identify whether the current line is:
-    - The line listing the total number of subjects in the file
-    - The start of a new subject's results
-    - The result of an individual trial, i.e. an item number and rt
-The regular expressions are defined as class variables, e.g. Azk.totalSubs_re
-"""
         line = line.strip()
         if Azk.totalSubs_re.match(line):
             self.SubsShouldBe = int(line.split(' ')[-1])
@@ -142,11 +140,11 @@ The regular expressions are defined as class variables, e.g. Azk.totalSubs_re
             self.processTrial(line)
     def lookForID(self, line):
         """
-Takes a line identifying a new subject's results, and locates the
-alphanumeric subject ID. If not found, sets the subject ID to missingX,
-where X is the number of subjects with missing subject ID's in the current 
-run.
-"""
+        Takes the line identifying a new subject's results, and locates the
+        alphanumeric subject ID. If not found, sets the subject ID to missingX,
+        where X is the number of subjects with missing subject ID's in the 
+        current run.
+        """
         searched = Azk.subID_re.search(line)
         if searched:
             self.currentSub = searched.group().split()[1]
@@ -159,10 +157,10 @@ run.
 
     def processTrial(self, line):
         """
-Split the trial line into item number and rt, determine if the response was
-correct, and write all the data to the output file, including the current
-conditions as determined by codeVars, codeSlices
-"""
+        Split the trial line into item number and rt, determine if the 
+        response was correct, and write all the data to the output file,
+        including the current conditions as determined by codeVars, codeSlices
+        """
         splitline = line.split()
         code = str(splitline[0])
         rt = float(splitline[1])
@@ -182,6 +180,6 @@ conditions as determined by codeVars, codeSlices
             trialInfo.append(code[eachslice])
         self.out.writerow(trialInfo)
         
-#if __name__ == '__main__':
+if __name__ == '__main__':
     # Start the whole thing with a call to AzkFiles     
-    #parse = AzkFiles()
+    parse = AzkFiles()
