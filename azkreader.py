@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
-
+"""Parses the .azk data files created by dmdx, and outputs a long format
+csv file suitable for importing into R
+"""
 import re
 import azksettings
 import csv
@@ -7,7 +9,7 @@ import glob
 import os
 from sys import exit
 
-def yesOrNo(message):
+def yes_or_no(message):
     """"Takes a yes or no question as its argument, and asks for a response.
     Will accept 'y', 'yes', 'n' or 'no', returning True or False as 
     appropriate. If it gets an unrecognized input, gives a warning and asks 
@@ -15,17 +17,17 @@ def yesOrNo(message):
     """
     print(message)
     print("(Y)es    (N)o\n")
-    userResponse = str(input()).lower()
-    if userResponse in ['y', 'yes']: 
+    user_response = str(input()).lower()
+    if user_response in ['y', 'yes']: 
         respond = True
-    elif userResponse in ['n', 'no']:
+    elif user_response in ['n', 'no']:
         respond = False
     else:
         print("AzkReader doesn't understand what you typed!"
               "Please type 'y' or 'n' only\n")
-        # Recursive call to yesOrNo(), final response is passed up and
+        # Recursive call to yes_or_no(), final response is passed up and
         #returned
-        respond = yesOrNo(message)
+        respond = yes_or_no(message)
     return respond    
             
 
@@ -39,14 +41,14 @@ class AzkFiles:
         # Ask which folder the desired azk files are in
         self.get_azk_folder()
         #Check that there actually are azk files in there
-        self.check_Azk = glob.glob(self.azk_folder + '/*.azk')
-        while len(self.check_Azk) == 0:
+        self.check_azk = glob.glob(self.azk_folder + '/*.azk')
+        while len(self.check_azk) == 0:
             print("\nERROR: No azk files found. Was that the right folder?")
             self.get_azk_folder()
-            self.check_Azk = glob.glob(self.azk_folder + '/*.azk')
+            self.check_azk = glob.glob(self.azk_folder + '/*.azk')
         # Create a list of all the azk files in that folder
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
-        self.useOld = yesOrNo("Use an existing settings file?")
+        self.useOld = yes_or_no("Use an existing settings file?")
         if self.useOld:
             self.Settings = azksettings.oldSettings()
         else:
@@ -65,8 +67,8 @@ class AzkFiles:
                                'trialnum'] +
                                self.Settings.codeVars
                                )
-        for eachFile in self.allFiles:
-            self.current = Azk(eachFile, self)
+        for each_file in self.allFiles:
+            self.current = Azk(each_file, self)
         self.outfile.close()
     def get_azk_folder(self):
         """ Print a numbered list of the subfolders in the working directory 
@@ -115,8 +117,8 @@ class Azk:
         self.out = AzkInstance.csv_out
         self.filename = filename
         self.inputfile = open(self.filename, 'r')
-        self.fileSubs = 0
-        self.missingSubs = 0
+        self.file_subs = 0
+        self.missing_subs = 0
         for line in self.inputfile:
             self.lineType(line)
     def lineType(self, line):
@@ -132,7 +134,7 @@ class Azk:
         if Azk.totalSubs_re.match(line):
             self.SubsShouldBe = int(line.split(' ')[-1])
         elif Azk.newSub_re.match(line):
-            self.fileSubs += 1
+            self.file_subs += 1
             self.lookForID(line)
             self.currentTrial = 0
         elif Azk.trialLine_re.match(line):
@@ -149,7 +151,7 @@ class Azk:
         if searched:
             self.currentSub = searched.group().split()[1]
         else: 
-            self.missingSubs += 1
+            self.missing_subs += 1
             Azk.totalMissing += 1
             print('Subject ID missing in ' + self.filename)
             self.currentSub = 'missing' + str(Azk.totalMissing)
