@@ -14,6 +14,9 @@ the process later.
 Both the *azkreader.py* and *azksettings.py* scripts are required, and must
 be located in the same folder.
 
+Or, you can download an executable version of the program 
+[here](https://github.com/onesandzeroes/AzkReader/raw/master/Downloads/AzkReader_win.zip).
+
 When running the script, put all of your .azk files from a 
 single experiment/list in a single folder, then move that folder to the 
 same directory as the *azkreader.py* script. The program will ask you which 
