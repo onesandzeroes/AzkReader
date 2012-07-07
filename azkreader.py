@@ -7,7 +7,7 @@ import azksettings
 import csv
 import glob
 import os
-from sys import exit
+import sys
 
 def yes_or_no(message):
     """"Takes a yes or no question as its argument, and asks for a response.
@@ -47,13 +47,13 @@ class AzkFiles:
             self.get_azk_folder()
             self.check_azk = glob.glob(self.azk_folder + '/*.azk')
         # Create a list of all the azk files in that folder
-        self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
+        self.all_files = glob.iglob(self.azk_folder + '/*.azk')
         use_old = yes_or_no("Use an existing settings file?")
         if use_old:
-            self.Settings = azksettings.OldSettings()
+            self.settings = azksettings.OldSettings()
         else:
-            self.Settings = azksettings.NewSettings()
-        self.outfile = open(self.Settings.user_filename + '-output.csv',
+            self.settings = azksettings.NewSettings()
+        self.outfile = open(self.settings.user_filename + '-output.csv',
                             'w', 
                             newline=''
                             )
@@ -65,10 +65,10 @@ class AzkFiles:
                                'rt', 
                                'correct', 
                                'trialnum'] +
-                               [var for var in self.Settings.code_vars]
+                               [var for var in self.settings.code_vars]
                                )
-        for each_file in self.allFiles:
-            self.current = Azk(each_file, self)
+        for each_file in self.all_files:
+            self.current_file = Azk(each_file, self)
         self.outfile.close()
     def get_azk_folder(self):
         """ Print a numbered list of the subfolders in the working directory 
@@ -84,18 +84,18 @@ class AzkFiles:
         )
         dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
-        for x in dir_dict:
-            print('(' + str(x) + ') ' + dir_dict[x])
+        for key in dir_dict:
+            print('(' + str(key) + ') ' + dir_dict[key])
         print()
         resp = int(input())
         if dir_dict[resp] == 'EXIT':
-            exit()
+            sys.exit()
         else:
             self.azk_folder = dir_dict[resp]
         
         
         
-# The way I'm currently coding this, it needs an AzkInstance passed in so
+# The way I'm currently coding this, it needs an azk_instance passed in so
 # it can read the settings and find the output file. Shouldn't be too clunky 
 # since it only needs one call to AzkFiles to run the whole thing 
 class Azk:
@@ -111,9 +111,9 @@ class Azk:
     # instances
     totalSubs = 0
     totalMissing = 0
-    def __init__(self, filename, AzkInstance):
-        self.code_vars = AzkInstance.Settings.code_vars
-        self.out = AzkInstance.csv_out
+    def __init__(self, filename, azk_instance):
+        self.code_vars = azk_instance.settings.code_vars
+        self.out = azk_instance.csv_out
         self.filename = filename
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
@@ -135,9 +135,9 @@ class Azk:
         elif Azk.new_sub_re.match(line):
             self.file_subs += 1
             self.look_for_id(line)
-            self.currentTrial = 0
+            self.current_trial = 0
         elif Azk.trial_line_re.match(line):
-            self.currentTrial += 1
+            self.current_trial += 1
             self.process_trial(line)
     def look_for_id(self, line):
         """
@@ -148,13 +148,13 @@ class Azk:
         """
         searched = Azk.sub_id_re.search(line)
         if searched:
-            self.currentSub = searched.group().split()[1]
+            self.current_sub = searched.group().split()[1]
         else: 
             self.missing_subs += 1
             Azk.totalMissing += 1
             print('Subject ID missing in ' + self.filename)
-            self.currentSub = 'missing' + str(Azk.totalMissing)
-            print('Replaced with ' + self.currentSub)
+            self.current_sub = 'missing' + str(Azk.totalMissing)
+            print('Replaced with ' + self.current_sub)
 
     def process_trial(self, line):
         """
@@ -175,7 +175,7 @@ class Azk:
         else:
             correct = 0
         rt = abs(rt)
-        trial_info = [self.currentSub, code, rt, correct, self.currentTrial]
+        trial_info = [self.current_sub, code, rt, correct, self.current_trial]
         # Segment the item number according to the user-defined variables
         for var in self.code_vars:
             current_slice = self.code_vars[var]
