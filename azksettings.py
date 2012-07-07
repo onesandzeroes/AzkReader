@@ -3,8 +3,6 @@ the experiment's item numbers, and the desired output filename"""
 import glob
 import csv
 
-    
-# Leave out the 'Other' option for the moment, it's not really needed
 class OldSettings:
     """Called when the user is using an existing .conf file. """
     def read_old(self, filename):
@@ -14,7 +12,7 @@ class OldSettings:
             var = row['variable']
             start = int(row['start'])
             end = int(row['end'])
-            self.code_vars[var] = (start, end)
+            self.code_vars[var] = slice(start, end)
     def ask_which(self):
         "List available settings files for user to choose"
         found_confs = glob.glob('*.conf')
@@ -50,6 +48,7 @@ class NewSettings:
         "Get the locations of the variables within the item number"
         print("""Now type where those values are found in the item number.
               If they span multiple digits, type them in the form '2-4'.""")
+        self.input_indexes = {}
         for var in self.input_vars:
             print(var)
             entered_index = str(input())
@@ -62,16 +61,18 @@ class NewSettings:
             else:
                 start = int(entered_index) - 1
                 end = start + 1
-            self.code_vars[var] = (start, end)
+            self.code_vars[var] = slice(start, end)
+            # Create tuples containing the indexes to save in the conf file
+            self.input_indexes[var] = (start, end)
     def write_settings(self):
         "Write the information about the variables to a .conf file"
         filename = self.user_filename + '.conf'
         out = open(filename, 'w', newline='')
         csv_out = csv.writer(out, dialect='excel')
         csv_out.writerow(['variable', 'start', 'end'])
-        for var in self.code_vars:
-            start = self.code_vars[var][0]
-            end   = self.code_vars[var][1]
+        for var in self.input_indexes:
+            start = self.input_indexes[var][0]
+            end   = self.input_indexes[var][1]
             csv_out.writerow([var, start, end])
         out.close()
     def __init__(self):

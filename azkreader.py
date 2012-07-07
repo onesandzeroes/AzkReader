@@ -48,8 +48,8 @@ class AzkFiles:
             self.check_azk = glob.glob(self.azk_folder + '/*.azk')
         # Create a list of all the azk files in that folder
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
-        self.useOld = yes_or_no("Use an existing settings file?")
-        if self.useOld:
+        use_old = yes_or_no("Use an existing settings file?")
+        if use_old:
             self.Settings = azksettings.OldSettings()
         else:
             self.Settings = azksettings.NewSettings()
@@ -65,7 +65,7 @@ class AzkFiles:
                                'rt', 
                                'correct', 
                                'trialnum'] +
-                               self.Settings.codeVars
+                               [var for var in self.Settings.code_vars]
                                )
         for each_file in self.allFiles:
             self.current = Azk(each_file, self)
@@ -103,51 +103,50 @@ class Azk:
     Takes the filename of an azk file as input, and extracts the data from
     that file.
     """
-    totalSubs_re = re.compile('^Subjects\sincorporated')
-    newSub_re = re.compile('^Subject\s[0-9]+')
-    trialLine_re = re.compile('\s*[0-9]+\s+-?[0-9]+\.[0-9]+')
-    subID_re = re.compile('ID\s+[0-9a-zA-Z]+')
+    total_subs_re = re.compile('^Subjects\sincorporated')
+    new_sub_re = re.compile('^Subject\s[0-9]+')
+    trial_line_re = re.compile('\s*[0-9]+\s+-?[0-9]+\.[0-9]+')
+    sub_id_re = re.compile('ID\s+[0-9a-zA-Z]+')
     # Set these as class variables so they can persist across the individual
     # instances
     totalSubs = 0
     totalMissing = 0
     def __init__(self, filename, AzkInstance):
-        self.codeVars = AzkInstance.Settings.codeVars
-        self.codeSlices = AzkInstance.Settings.codeSlices
+        self.code_vars = AzkInstance.Settings.code_vars
         self.out = AzkInstance.csv_out
         self.filename = filename
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
         self.missing_subs = 0
         for line in self.inputfile:
-            self.lineType(line)
-    def lineType(self, line):
+            self.line_type(line)
+    def line_type(self, line):
         """ Use regular expression matching to identify whether the 
         current line is:
         - The line listing the total number of subjects in the file
         - The start of a new subject's results
         - The result of an individual trial, i.e. an item number and rt
         The regular expressions are defined as class variables, 
-        e.g. Azk.totalSubs_re
+        e.g. Azk.total_subs_re
         """
         line = line.strip()
-        if Azk.totalSubs_re.match(line):
-            self.SubsShouldBe = int(line.split(' ')[-1])
-        elif Azk.newSub_re.match(line):
+        if Azk.total_subs_re.match(line):
+            self.subs_should_be = int(line.split(' ')[-1])
+        elif Azk.new_sub_re.match(line):
             self.file_subs += 1
-            self.lookForID(line)
+            self.look_for_id(line)
             self.currentTrial = 0
-        elif Azk.trialLine_re.match(line):
+        elif Azk.trial_line_re.match(line):
             self.currentTrial += 1
-            self.processTrial(line)
-    def lookForID(self, line):
+            self.process_trial(line)
+    def look_for_id(self, line):
         """
         Takes the line identifying a new subject's results, and locates the
         alphanumeric subject ID. If not found, sets the subject ID to missingX,
         where X is the number of subjects with missing subject ID's in the 
         current run.
         """
-        searched = Azk.subID_re.search(line)
+        searched = Azk.sub_id_re.search(line)
         if searched:
             self.currentSub = searched.group().split()[1]
         else: 
@@ -157,11 +156,11 @@ class Azk:
             self.currentSub = 'missing' + str(Azk.totalMissing)
             print('Replaced with ' + self.currentSub)
 
-    def processTrial(self, line):
+    def process_trial(self, line):
         """
         Split the trial line into item number and rt, determine if the 
         response was correct, and write all the data to the output file,
-        including the current conditions as determined by codeVars, codeSlices
+        including the current conditions as determined by code_vars, code_slices
         """
         splitline = line.split()
         code = str(splitline[0])
@@ -176,11 +175,12 @@ class Azk:
         else:
             correct = 0
         rt = abs(rt)
-        trialInfo = [self.currentSub, code, rt, correct, self.currentTrial]
+        trial_info = [self.currentSub, code, rt, correct, self.currentTrial]
         # Segment the item number according to the user-defined variables
-        for eachslice in self.codeSlices:
-            trialInfo.append(code[eachslice])
-        self.out.writerow(trialInfo)
+        for var in self.code_vars:
+            current_slice = self.code_vars[var]
+            trial_info.append(code[current_slice])
+        self.out.writerow(trial_info)
         
 if __name__ == '__main__':
     # Start the whole thing with a call to AzkFiles     
