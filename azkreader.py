@@ -50,10 +50,10 @@ class AzkFiles:
         self.allFiles = glob.iglob(self.azk_folder + '/*.azk')
         self.useOld = yes_or_no("Use an existing settings file?")
         if self.useOld:
-            self.Settings = azksettings.oldSettings()
+            self.Settings = azksettings.OldSettings()
         else:
-            self.Settings = azksettings.newSettings()
-        self.outfile = open(self.Settings.userFilename + '-output.csv',
+            self.Settings = azksettings.NewSettings()
+        self.outfile = open(self.Settings.user_filename + '-output.csv',
                             'w', 
                             newline=''
                             )
