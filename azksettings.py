@@ -2,6 +2,7 @@
 the experiment's item numbers, and the desired output filename"""
 import glob
 import csv
+import collections
 
 class OldSettings:
     """Called when the user is using an existing .conf file. """
@@ -25,7 +26,7 @@ class OldSettings:
         chosen_file = found_confs[user_input - 1]
         return chosen_file
     def __init__(self):
-        self.code_vars = {}
+        self.code_vars = collections.OrderedDict()
         use_file = self.ask_which()
         self.read_old(use_file)
         self.user_filename = use_file.split('.')[0]
@@ -76,7 +77,7 @@ class NewSettings:
             csv_out.writerow([var, start, end])
         out.close()
     def __init__(self):
-        self.code_vars = {}
+        self.code_vars = collections.OrderedDict()
         print("""What should the settings file for this dataset be called?
         (Just type a short name, e.g. the name of your experiment.
         Don't worry about the file extension, it gets added
