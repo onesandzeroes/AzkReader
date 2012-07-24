@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-"""Parses the .azk data files created by dmdx, and outputs a long format
+"""
+Parses the .azk data files created by dmdx, and outputs a long format
 csv file suitable for importing into R
 """
 import re
@@ -11,7 +12,8 @@ import sys
 import textwrap
 
 def yes_or_no(message):
-    """"Takes a yes or no question as its argument, and asks for a response.
+    """"
+    Takes a yes or no question as its argument, and asks for a response.
     Will accept 'y', 'yes', 'n' or 'no', returning True or False as 
     appropriate. If it gets an unrecognized input, gives a warning and asks 
     again.
@@ -24,8 +26,14 @@ def yes_or_no(message):
     elif user_response in ['n', 'no']:
         respond = False
     else:
-        print("AzkReader doesn't understand what you typed!"
-              "Please type 'y' or 'n' only\n")
+        print(textwrap.dedent(
+        """
+        AzkReader doesn't understand what you typed!
+        Please type 'y' or 'n' only
+
+        """
+        )
+        )
         # Recursive call to yes_or_no(), final response is passed up and
         #returned
         respond = yes_or_no(message)
@@ -33,7 +41,8 @@ def yes_or_no(message):
             
 
 class AzkFiles:
-    """Controller class that sets the input folder, gets the variable settings,
+    """
+    Controller class that sets the input folder, gets the variable settings,
     creates the output file, and then creates an Azk() instance to process
     each individual .azk file
     Call this class to start the parsing process.
@@ -73,7 +82,8 @@ class AzkFiles:
                                     )
         self.outfile.close()
     def get_azk_folder(self):
-        """ Print a numbered list of the subfolders in the working directory 
+        """ 
+        Print a numbered list of the subfolders in the working directory 
         (i.e. the directory the script is run from), and returns the directory 
         the user chooses.
         """
@@ -160,7 +170,7 @@ class Azk:
         """
         Split the trial line into item number and rt, determine if the 
         response was correct, and write all the data to the output file,
-        including the current conditions as determined by code_vars, code_slices
+        including the current conditions as determined by code_vars.
         """
         splitline = line.split()
         code = str(splitline[0])
