@@ -68,7 +68,10 @@ class AzkFiles:
                                [var for var in self.settings.code_vars]
                                )
         for each_file in self.all_files:
-            self.current_file = Azk(each_file, self)
+            self.current_file = Azk(each_file, 
+                                    self.settings.code_vars,
+                                    self.csv_out
+                                    )
         self.outfile.close()
     def get_azk_folder(self):
         """ Print a numbered list of the subfolders in the working directory 
@@ -111,9 +114,9 @@ class Azk:
     # instances
     totalSubs = 0
     totalMissing = 0
-    def __init__(self, filename, azk_instance):
-        self.code_vars = azk_instance.settings.code_vars
-        self.out = azk_instance.csv_out
+    def __init__(self, filename, code_vars, output_file):
+        self.code_vars = code_vars
+        self.out = output_file
         self.filename = filename
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
