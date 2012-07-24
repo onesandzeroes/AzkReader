@@ -8,6 +8,7 @@ import csv
 import glob
 import os
 import sys
+import textwrap
 
 def yes_or_no(message):
     """"Takes a yes or no question as its argument, and asks for a response.
@@ -76,11 +77,14 @@ class AzkFiles:
         (i.e. the directory the script is run from), and returns the directory 
         the user chooses.
         """
-        print("""Which folder are your .azk files located in?
+        print(textwrap.dedent(
+        """
+        Which folder are your .azk files located in?
         If you cannot see them in this list, you need
         to copy the folder containing them to the
         same folder as this script. 
         """
+        )
         )
         dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
         dir_dict = {ind: value for ind, value in enumerate(dirs)}

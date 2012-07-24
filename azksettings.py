@@ -3,6 +3,7 @@ the experiment's item numbers, and the desired output filename"""
 import glob
 import csv
 import collections
+import textwrap
 
 class OldSettings:
     """Called when the user is using an existing .conf file. """
@@ -17,9 +18,14 @@ class OldSettings:
     def ask_which(self):
         "List available settings files for user to choose"
         found_confs = glob.glob('*.conf')
-        print("""Which settings file should be used?
-              (if you can't see it, copy it to the same folder 
-              as this script)""")
+        print(textwrap.dedent(
+        """
+        Which settings file should be used?
+        (if you can't see it, copy it to the same folder 
+        as this script)
+        """
+        )
+        )
         for option_num, filename in enumerate(found_confs):
             print('(' + str(option_num + 1) + ') ' + filename)
         user_input = int(input())
@@ -37,9 +43,13 @@ class NewSettings:
     def get_vars(self):
         """Ask about which variables/conditions are reflected 
         in the item numbers"""
-        print("What variables need to be extracted from the ID number for each"
-              " trial? Type them one at a time, then ENTER when you're done\n"
-              )
+        print(textwrap.dedent(
+        """
+        What variables need to be extracted from the ID number for each
+        trial? Type them one at a time, then ENTER when you're done
+        """
+        )
+        )
         self.input_vars = []
         entering = input()
         while entering:
@@ -47,8 +57,13 @@ class NewSettings:
             entering = input()
     def get_indexes(self):
         "Get the locations of the variables within the item number"
-        print("""Now type where those values are found in the item number.
-              If they span multiple digits, type them in the form '2-4'.""")
+        print(textwrap.dedent(
+        """
+        Now type where those values are found in the item number.
+        If they span multiple digits, type them in the form '2-4'.
+        """
+        )
+        )
         self.input_indexes = {}
         for var in self.input_vars:
             print(var)
@@ -78,10 +93,14 @@ class NewSettings:
         out.close()
     def __init__(self):
         self.code_vars = collections.OrderedDict()
-        print("""What should the settings file for this dataset be called?
+        print(textwrap.dedent(
+        """
+        What should the settings file for this dataset be called?
         (Just type a short name, e.g. the name of your experiment.
         Don't worry about the file extension, it gets added
-        automatically)""")
+        automatically)"""
+        )
+        )
         self.user_filename = input()
         self.get_vars()
         self.get_indexes()
