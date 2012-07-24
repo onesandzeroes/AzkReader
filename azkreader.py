@@ -39,15 +39,13 @@ class AzkFiles:
     """
     def __init__(self):
         # Ask which folder the desired azk files are in
-        self.get_azk_folder()
-        #Check that there actually are azk files in there
-        self.check_azk = glob.glob(self.azk_folder + '/*.azk')
-        while len(self.check_azk) == 0:
-            print("\nERROR: No azk files found. Was that the right folder?")
-            self.get_azk_folder()
-            self.check_azk = glob.glob(self.azk_folder + '/*.azk')
+        self.azk_folder = self.get_azk_folder()
         # Create a list of all the azk files in that folder
-        self.all_files = glob.iglob(self.azk_folder + '/*.azk')
+        self.all_files = glob.glob(self.azk_folder + '/*.azk')
+        while len(self.all_files) == 0:
+            print("\nERROR: No azk files found. Was that the right folder?")
+            self.azk_folder = self.get_azk_folder()
+            self.all_files = glob.glob(self.azk_folder + '/*.azk')
         use_old = yes_or_no("Use an existing settings file?")
         if use_old:
             self.settings = azksettings.OldSettings()
@@ -75,9 +73,8 @@ class AzkFiles:
         self.outfile.close()
     def get_azk_folder(self):
         """ Print a numbered list of the subfolders in the working directory 
-        (i.e. the directory the script is run from), and set the input folder 
-        to the directory the user chooses.
-        Doesn't actually return anything, just sets self.azk_folder.
+        (i.e. the directory the script is run from), and returns the directory 
+        the user chooses.
         """
         print("""Which folder are your .azk files located in?
         If you cannot see them in this list, you need
@@ -94,13 +91,9 @@ class AzkFiles:
         if dir_dict[resp] == 'EXIT':
             sys.exit()
         else:
-            self.azk_folder = dir_dict[resp]
-        
-        
-        
-# The way I'm currently coding this, it needs an azk_instance passed in so
-# it can read the settings and find the output file. Shouldn't be too clunky 
-# since it only needs one call to AzkFiles to run the whole thing 
+            return dir_dict[resp]
+
+
 class Azk:
     """
     Takes the filename of an azk file as input, and extracts the data from
@@ -184,7 +177,8 @@ class Azk:
             current_slice = self.code_vars[var]
             trial_info.append(code[current_slice])
         self.out.writerow(trial_info)
-        
+
+
 if __name__ == '__main__':
     # Start the whole thing with a call to AzkFiles     
     parse = AzkFiles()
