@@ -6,7 +6,9 @@ import collections
 import textwrap
 
 class OldSettings:
-    """Called when the user is using an existing .conf file. """
+    """
+    Called when the user is using an existing .conf file. 
+    """
     def read_old(self, filename):
         "Read info from the chosen settings file"
         setting_csv = csv.DictReader(open(filename), dialect='excel')
@@ -38,11 +40,15 @@ class OldSettings:
         self.user_filename = use_file.split('.')[0]
             
 class NewSettings:
-    """Called when the information about the variables must be entered
-    for the first time, creating a new .conf file"""
+    """
+    Called when the information about the variables must be entered
+    for the first time, creating a new .conf file
+    """
     def get_vars(self):
-        """Ask about which variables/conditions are reflected 
-        in the item numbers"""
+        """
+        Ask about which variables/conditions are reflected 
+        in the item numbers
+        """
         print(textwrap.dedent(
         """
         What variables need to be extracted from the ID number for each
@@ -98,7 +104,8 @@ class NewSettings:
         What should the settings file for this dataset be called?
         (Just type a short name, e.g. the name of your experiment.
         Don't worry about the file extension, it gets added
-        automatically)"""
+        automatically)
+        """
         )
         )
         self.user_filename = input()
