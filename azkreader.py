@@ -11,17 +11,18 @@ import os
 import sys
 import textwrap
 
+
 def yes_or_no(message):
     """"
     Takes a yes or no question as its argument, and asks for a response.
-    Will accept 'y', 'yes', 'n' or 'no', returning True or False as 
-    appropriate. If it gets an unrecognized input, gives a warning and asks 
+    Will accept 'y', 'yes', 'n' or 'no', returning True or False as
+    appropriate. If it gets an unrecognized input, gives a warning and asks
     again.
     """
     print(message)
     print("(Y)es    (N)o\n")
     user_response = str(input()).lower()
-    if user_response in ['y', 'yes']: 
+    if user_response in ['y', 'yes']:
         respond = True
     elif user_response in ['n', 'no']:
         respond = False
@@ -37,8 +38,8 @@ def yes_or_no(message):
         # Recursive call to yes_or_no(), final response is passed up and
         #returned
         respond = yes_or_no(message)
-    return respond    
-            
+    return respond
+
 
 class AzkFiles:
     """
@@ -62,30 +63,37 @@ class AzkFiles:
         else:
             self.settings = azksettings.NewSettings()
         self.outfile = open(self.settings.user_filename + '-output.csv',
-                            'w', 
+                            'w',
                             newline=''
                             )
         # Create the final output file here, and append to it when processing
         # each of the individual files
-        self.csv_out = csv.writer(self.outfile, dialect='excel')
-        self.csv_out.writerow(['filename',
-                               'subject', 
-                               'itemcode', 
-                               'rt', 
-                               'correct', 
-                               'trialnum'] +
-                               [var for var in self.settings.code_vars]
-                               )
+        self.csv_out = csv.DictWriter(
+            self.outfile,
+            dialect='excel',
+            fieldnames=['filename',
+                        'subject',
+                        'itemcode',
+                        'rt',
+                        'correct',
+                        'trialnum'] +
+                       [var for var in self.settings.code_vars]
+        )
+        self.csv_out.writeheader()
+        # Iteration through all the individual files happens here
         for each_file in self.all_files:
-            self.current_file = Azk(each_file, 
+            self.current_file = Azk(each_file,
                                     self.settings.code_vars,
                                     self.csv_out
                                     )
         self.outfile.close()
+
     def get_azk_folder(self):
-        """ 
-        Print a numbered list of the subfolders in the working directory 
-        (i.e. the directory the script is run from), and returns the directory 
+        """ Print a numbered
+        list of the subfolders in the working directory
+        (i.e. the directory the
+        script is run from),
+        and returns the directory
         the user chooses.
         """
         print(textwrap.dedent(
@@ -93,7 +101,7 @@ class AzkFiles:
         Which folder are your .azk files located in?
         If you cannot see them in this list, you need
         to copy the folder containing them to the
-        same folder as this script. 
+        same folder as this script.
         """
         )
         )
@@ -122,6 +130,7 @@ class Azk:
     # instances
     totalSubs = 0
     totalMissing = 0
+
     def __init__(self, filename, code_vars, output_file):
         self.code_vars = code_vars
         self.out = output_file
@@ -133,13 +142,14 @@ class Azk:
         self.missing_subs = 0
         for line in self.inputfile:
             self.line_type(line)
+
     def line_type(self, line):
-        """ Use regular expression matching to identify whether the 
+        """ Use regular expression matching to identify whether the
         current line is:
         - The line listing the total number of subjects in the file
         - The start of a new subject's results
         - The result of an individual trial, i.e. an item number and rt
-        The regular expressions are defined as class variables, 
+        The regular expressions are defined as class variables,
         e.g. Azk.total_subs_re
         """
         line = line.strip()
@@ -152,17 +162,18 @@ class Azk:
         elif Azk.trial_line_re.match(line):
             self.current_trial += 1
             self.process_trial(line)
+
     def look_for_id(self, line):
         """
         Takes the line identifying a new subject's results, and locates the
         alphanumeric subject ID. If not found, sets the subject ID to missingX,
-        where X is the number of subjects with missing subject ID's in the 
+        where X is the number of subjects with missing subject ID's in the
         current run.
         """
         searched = Azk.sub_id_re.search(line)
         if searched:
             self.current_sub = searched.group().split()[1]
-        else: 
+        else:
             self.missing_subs += 1
             Azk.totalMissing += 1
             print('Subject ID missing in ' + self.filename)
@@ -171,7 +182,7 @@ class Azk:
 
     def process_trial(self, line):
         """
-        Split the trial line into item number and rt, determine if the 
+        Split the trial line into item number and rt, determine if the
         response was correct, and write all the data to the output file,
         including the current conditions as determined by code_vars.
         """
@@ -188,20 +199,21 @@ class Azk:
         else:
             correct = 0
         rt = abs(rt)
-        trial_info = [self.split_filename, 
-                      self.current_sub,
-                      code,
-                      rt,
-                      correct,
-                      self.current_trial
-                      ]
+        trial_info = {
+            'filename': self.split_filename,
+            'subject': self.current_sub,
+            'itemcode': code,
+            'rt': rt,
+            'correct': correct,
+            'trialnum': self.current_trial
+        }
         # Segment the item number according to the user-defined variables
         for var in self.code_vars:
             current_slice = self.code_vars[var]
-            trial_info.append(code[current_slice])
+            trial_info[var] = code[current_slice]
         self.out.writerow(trial_info)
 
 
 if __name__ == '__main__':
-    # Start the whole thing with a call to AzkFiles     
+    # Start the whole thing with a call to AzkFiles
     parse = AzkFiles()
