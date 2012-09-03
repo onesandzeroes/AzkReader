@@ -126,6 +126,8 @@ class Azk:
         self.code_vars = code_vars
         self.out = output_file
         self.filename = filename
+        # split_filename: used to include the filename in the output
+        self.split_filename = os.path.split(self.filename)[-1]
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
         self.missing_subs = 0
@@ -186,7 +188,7 @@ class Azk:
         else:
             correct = 0
         rt = abs(rt)
-        trial_info = [self.filename, 
+        trial_info = [self.split_filename, 
                       self.current_sub,
                       code,
                       rt,
