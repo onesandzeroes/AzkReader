@@ -68,7 +68,8 @@ class AzkFiles:
         # Create the final output file here, and append to it when processing
         # each of the individual files
         self.csv_out = csv.writer(self.outfile, dialect='excel')
-        self.csv_out.writerow(['subject', 
+        self.csv_out.writerow(['filename',
+                               'subject', 
                                'itemcode', 
                                'rt', 
                                'correct', 
@@ -185,7 +186,13 @@ class Azk:
         else:
             correct = 0
         rt = abs(rt)
-        trial_info = [self.current_sub, code, rt, correct, self.current_trial]
+        trial_info = [self.filename, 
+                      self.current_sub,
+                      code,
+                      rt,
+                      correct,
+                      self.current_trial
+                      ]
         # Segment the item number according to the user-defined variables
         for var in self.code_vars:
             current_slice = self.code_vars[var]
