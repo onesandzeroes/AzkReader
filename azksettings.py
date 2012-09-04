@@ -9,6 +9,16 @@ class OldSettings:
     """
     Called when the user is using an existing .conf file. 
     """
+
+    def __init__(self, filename=None):
+        self.code_vars = collections.OrderedDict()
+        if filename:
+            self.read_old(filename)
+        else:
+            filename = self.ask_which()
+            self.read_old(filename)
+        self.user_filename = filename.split('.')[0]
+
     def read_old(self, filename):
         "Read info from the chosen settings file"
         setting_csv = csv.DictReader(open(filename), dialect='excel')
@@ -17,6 +27,7 @@ class OldSettings:
             start = int(row['start'])
             end = int(row['end'])
             self.code_vars[var] = slice(start, end)
+
     def ask_which(self):
         "List available settings files for user to choose"
         found_confs = glob.glob('*.conf')
@@ -33,12 +44,8 @@ class OldSettings:
         user_input = int(input())
         chosen_file = found_confs[user_input - 1]
         return chosen_file
-    def __init__(self):
-        self.code_vars = collections.OrderedDict()
-        use_file = self.ask_which()
-        self.read_old(use_file)
-        self.user_filename = use_file.split('.')[0]
-            
+
+
 class NewSettings:
     """
     Called when the information about the variables must be entered

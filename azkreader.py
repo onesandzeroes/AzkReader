@@ -48,20 +48,27 @@ class AzkFiles:
     each individual .azk file
     Call this class to start the parsing process.
     """
-    def __init__(self):
-        # Ask which folder the desired azk files are in
-        self.azk_folder = self.get_azk_folder()
+
+    def __init__(self, azk_folder=None, conf_file=None):
+        if azk_folder:
+            self.azk_folder = azk_folder
+        else:
+            # Ask which folder the desired azk files are in
+            self.azk_folder = self.get_azk_folder()
         # Create a list of all the azk files in that folder
         self.all_files = glob.glob(self.azk_folder + '/*.azk')
         while len(self.all_files) == 0:
             print("\nERROR: No azk files found. Was that the right folder?")
             self.azk_folder = self.get_azk_folder()
             self.all_files = glob.glob(self.azk_folder + '/*.azk')
-        use_old = yes_or_no("Use an existing settings file?")
-        if use_old:
-            self.settings = azksettings.OldSettings()
+        if conf_file:
+            self.settings = azksettings.OldSettings(filename=conf_file)
         else:
-            self.settings = azksettings.NewSettings()
+            use_old = yes_or_no("Use an existing settings file?")
+            if use_old:
+                self.settings = azksettings.OldSettings()
+            else:
+                self.settings = azksettings.NewSettings()
         self.outfile = open(self.settings.user_filename + '-output.csv',
                             'w',
                             newline=''
