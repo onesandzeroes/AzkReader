@@ -197,10 +197,10 @@ class Azk:
         code = str(splitline[0])
         rt = float(splitline[1])
         # Grab the COT, although it's not currently being used
-        try:
-            cot = float(splitline[2])
-        except IndexError:
-            cot = None
+        # try:
+        #     cot = float(splitline[2])
+        # except IndexError:
+            # cot = None
         if rt > 0:
             correct = 1
         else:
