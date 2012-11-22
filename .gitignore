@@ -9,4 +9,5 @@ TestInput
 CompiledExe
 CompiledExe*
 CompiledExe/*
+*.swp
 azktest-output.csv
