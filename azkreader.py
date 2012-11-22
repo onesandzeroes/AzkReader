@@ -69,34 +69,39 @@ class AzkFiles:
                 self.settings = azksettings.OldSettings()
             else:
                 self.settings = azksettings.NewSettings()
-        self.outfile = open(self.settings.user_filename + '-output.csv',
-                            'w',
-                            newline=''
-                            )
+                self.outfile = open(
+                    self.settings.user_filename + '-output.csv',
+                    'w',
+                    newline=''
+                )
         # Create the final output file here, and append to it when processing
         # each of the individual files
         self.csv_out = csv.DictWriter(
             self.outfile,
             dialect='excel',
-            fieldnames=['filename',
-                        'subject',
-                        'itemcode',
-                        'rt',
-                        'correct',
-                        'trialnum'] +
-                       [var for var in self.settings.code_vars]
+            fieldnames=[
+                'filename',
+                'subject',
+                'itemcode',
+                'rt',
+                'correct',
+                'trialnum'
+            ] + [var for var in self.settings.code_vars]
         )
         self.csv_out.writeheader()
         # Iteration through all the individual files happens here
         for each_file in self.all_files:
-            self.current_file = Azk(each_file,
-                                    self.settings.code_vars,
-                                    self.csv_out
-                                    )
+            self.current_file = Azk(
+                each_file,
+                self.settings.code_vars,
+                self.csv_out
+            )
         self.outfile.close()
+        input("\n\nDone. Press ENTER to exit.")
 
     def get_azk_folder(self):
-        """ Print a numbered
+        """ 
+        Print a numbered
         list of the subfolders in the working directory
         (i.e. the directory the
         script is run from),
@@ -116,7 +121,7 @@ class AzkFiles:
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
         for key in dir_dict:
             print('(' + str(key) + ') ' + dir_dict[key])
-        print()
+        print('\n')
         resp = int(input())
         if dir_dict[resp] == 'EXIT':
             sys.exit()
@@ -151,16 +156,20 @@ class Azk:
             self.line_type(line)
 
     def line_type(self, line):
-        """ Use regular expression matching to identify whether the
+        """
+        Use regular expression matching to identify whether the
         current line is:
-        - The line listing the total number of subjects in the file
-        - The start of a new subject's results
-        - The result of an individual trial, i.e. an item number and rt
+
+        * The line listing the total number of subjects in the file
+        * The start of a new subject's results
+        * The result of an individual trial, i.e. an item number and rt
+
         The regular expressions are defined as class variables,
         e.g. Azk.total_subs_re
         """
         line = line.strip()
         if Azk.total_subs_re.match(line):
+            # Number of subjects that should be in the current file
             self.subs_should_be = int(line.split(' ')[-1])
         elif Azk.new_sub_re.match(line):
             self.file_subs += 1
