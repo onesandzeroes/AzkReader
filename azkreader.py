@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# TODO: probably better to rewrite the settings classes so that they
+# return dicts, instead of the classes themselves
 """
 Parses the .azk data files created by dmdx, and outputs a long format
 csv file suitable for importing into R
@@ -36,7 +38,7 @@ def yes_or_no(message):
         )
         )
         # Recursive call to yes_or_no(), final response is passed up and
-        #returned
+        # returned
         respond = yes_or_no(message)
     return respond
 
@@ -57,10 +59,12 @@ class AzkFiles:
             self.azk_folder = self.get_azk_folder()
         # Create a list of all the azk files in that folder
         self.all_files = glob.glob(self.azk_folder + '/*.azk')
+
         while len(self.all_files) == 0:
             print("\nERROR: No azk files found. Was that the right folder?")
             self.azk_folder = self.get_azk_folder()
             self.all_files = glob.glob(self.azk_folder + '/*.azk')
+
         if conf_file:
             self.settings = azksettings.OldSettings(filename=conf_file)
         else:
@@ -76,37 +80,30 @@ class AzkFiles:
                 )
         # Create the final output file here, and append to it when processing
         # each of the individual files
+        output_fields = ['filename', 'subject', 'itemcode', 'rt', 'correct',
+                         'trialnum']
+        output_fields += [var for var in self.settings.code_vars]
         self.csv_out = csv.DictWriter(
             self.outfile,
             dialect='excel',
-            fieldnames=[
-                'filename',
-                'subject',
-                'itemcode',
-                'rt',
-                'correct',
-                'trialnum'
-            ] + [var for var in self.settings.code_vars]
+            fieldnames=output_fields
         )
         self.csv_out.writeheader()
         # Iteration through all the individual files happens here
-        for each_file in self.all_files:
+        for azkfile in self.all_files:
             self.current_file = Azk(
-                each_file,
-                self.settings.code_vars,
-                self.csv_out
+                filename=azkfile,
+                code_vars=self.settings.code_vars,
+                output_file=self.csv_out
             )
         self.outfile.close()
         input("\n\nDone. Press ENTER to exit.")
 
     def get_azk_folder(self):
         """ 
-        Print a numbered
-        list of the subfolders in the working directory
-        (i.e. the directory the
-        script is run from),
-        and returns the directory
-        the user chooses.
+        Prints a numbered list of the subfolders in the working directory (i.e.
+        the directory the script is run from), and returns the directory the
+        user chooses.
         """
         print(textwrap.dedent(
         """
@@ -119,8 +116,8 @@ class AzkFiles:
         )
         dirs = [d for d in os.listdir() if os.path.isdir(d)] + ['EXIT']
         dir_dict = {ind: value for ind, value in enumerate(dirs)}
-        for key in dir_dict:
-            print('(' + str(key) + ') ' + dir_dict[key])
+        for ind in dir_dict:
+            print('(' + str(ind) + ') ' + dir_dict[ind])
         print('\n')
         resp = int(input())
         if dir_dict[resp] == 'EXIT':
@@ -152,10 +149,11 @@ class Azk:
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
         self.missing_subs = 0
+        # Iteration through the file happens here
         for line in self.inputfile:
-            self.line_type(line)
+            self.identify_line_type(line)
 
-    def line_type(self, line):
+    def identify_line_type(self, line):
         """
         Use regular expression matching to identify whether the
         current line is:
@@ -168,13 +166,15 @@ class Azk:
         e.g. Azk.total_subs_re
         """
         line = line.strip()
+        # Line indicating number of subjects that should be in the current file
         if Azk.total_subs_re.match(line):
-            # Number of subjects that should be in the current file
             self.subs_should_be = int(line.split(' ')[-1])
+        # Line indicating the start of a new subject's data
         elif Azk.new_sub_re.match(line):
             self.file_subs += 1
             self.look_for_id(line)
             self.current_trial = 0
+        # Line with reaction time and response for an individual trial
         elif Azk.trial_line_re.match(line):
             self.current_trial += 1
             self.process_trial(line)
@@ -186,15 +186,18 @@ class Azk:
         where X is the number of subjects with missing subject ID's in the
         current run.
         """
-        searched = Azk.sub_id_re.search(line)
-        if searched:
-            self.current_sub = searched.group().split()[1]
+        id_found = Azk.sub_id_re.search(line)
+        if id_found:
+            self.current_sub = id_found.group().split()[1]
         else:
             self.missing_subs += 1
+            # Update the class variable, which persists across all instances,
+            # and therefore keeps track of the total number of missing
+            # subjects
             Azk.totalMissing += 1
-            print('Subject ID missing in ' + self.filename)
+            print('Subject ID missing in ', self.filename)
             self.current_sub = 'missing' + str(Azk.totalMissing)
-            print('Replaced with ' + self.current_sub)
+            print('Replaced with ', self.current_sub)
 
     def process_trial(self, line):
         """
