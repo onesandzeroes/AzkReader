@@ -73,11 +73,11 @@ class AzkFiles:
                 self.settings = azksettings.OldSettings()
             else:
                 self.settings = azksettings.NewSettings()
-                self.outfile = open(
-                    self.settings.user_filename + '-output.csv',
-                    'w',
-                    newline=''
-                )
+        self.outfile = open(
+            self.settings.user_filename + '-output.csv',
+            'w',
+            newline=''
+        )
         # Create the final output file here, and append to it when processing
         # each of the individual files
         output_fields = ['filename', 'subject', 'itemcode', 'rt', 'correct',
