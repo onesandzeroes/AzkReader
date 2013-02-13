@@ -12,6 +12,12 @@ class OldSettings:
     """
 
     def __init__(self, filename=None):
+        """
+        Reads in the configuration file chosen by the user. Currently the
+        optional filename argument that directly specifies the file is only
+        used if using the program in command line mode, otherwise ask_which is
+        called.
+        """
         self.code_vars = collections.OrderedDict()
         if filename:
             self.read_old(filename)
@@ -36,7 +42,7 @@ class OldSettings:
         """
         Which settings file should be used?
         (if you can't see it, copy it to the same folder
-        as this script)
+        as this script, or just create a new one)
         """
         )
         )
@@ -52,6 +58,22 @@ class NewSettings:
     Called when the information about the variables must be entered
     for the first time, creating a new .conf file
     """
+    def __init__(self):
+        self.code_vars = collections.OrderedDict()
+        print(textwrap.dedent(
+        """
+        What should the settings file for this dataset be called?
+        (Just type a short name, e.g. the name of your experiment.
+        Don't worry about the file extension, it gets added
+        automatically)
+        """
+        )
+        )
+        self.user_filename = input()
+        self.get_vars()
+        self.get_indexes()
+        self.write_settings()
+
     def get_vars(self):
         """
         Ask about which variables/conditions are reflected
@@ -71,10 +93,18 @@ class NewSettings:
             entering = input()
 
     def get_indexes(self):
-        "Get the locations of the variables within the item number"
+        """
+        Get the locations of the variables within the item number.
+        Note: because this script is designed to be used by people
+        who aren't necessarily familiar with Python, indexing is
+        1-based instead of 0-based
+        """
         print(textwrap.dedent(
         """
         Now type where those values are found in the item number.
+        e.g. If your item number is 153, and the value for prime_type
+        is 5, then prime_type is found at position 2, so
+        enter 2 for that variable.
         If they span multiple digits, type them in the form '2-4'.
         """
         )
@@ -108,20 +138,5 @@ class NewSettings:
             csv_out.writerow([var, start, end])
         out.close()
 
-    def __init__(self):
-        self.code_vars = collections.OrderedDict()
-        print(textwrap.dedent(
-        """
-        What should the settings file for this dataset be called?
-        (Just type a short name, e.g. the name of your experiment.
-        Don't worry about the file extension, it gets added
-        automatically)
-        """
-        )
-        )
-        self.user_filename = input()
-        self.get_vars()
-        self.get_indexes()
-        self.write_settings()
 
 # Add some if __name__ = '__main__' tests down here

@@ -60,12 +60,7 @@ class AzkFiles:
         # Create a list of all the azk files in that folder
         self.all_files = glob.glob(self.azk_folder + '/*.azk')
 
-        while len(self.all_files) == 0:
-            print("\nERROR: No azk files found. Was that the right folder?")
-            self.azk_folder = self.get_azk_folder()
-            self.all_files = glob.glob(self.azk_folder + '/*.azk')
-
-        if conf_file:
+        if not conf_file is None:
             self.settings = azksettings.OldSettings(filename=conf_file)
         else:
             use_old = yes_or_no("Use an existing settings file?")
@@ -119,11 +114,21 @@ class AzkFiles:
         for ind in dir_dict:
             print('(' + str(ind) + ') ' + dir_dict[ind])
         print('\n')
-        resp = int(input())
-        if dir_dict[resp] == 'EXIT':
+        resp = dir_dict[int(input())]
+        if resp == 'EXIT':
             sys.exit()
         else:
-            return dir_dict[resp]
+            azk_files = glob.glob(resp + '/*.azk')
+            while len(azk_files) == 0:
+                print(textwrap.dedent(
+                    """
+                    ******************************************************
+                    ERROR: No azk files found. Was that the right folder?
+                    ******************************************************
+                    """
+                ))
+                resp = self.get_azk_folder()
+            return resp
 
 
 class Azk:
