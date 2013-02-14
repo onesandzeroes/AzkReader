@@ -61,11 +61,11 @@ class AzkFiles:
         self.all_files = glob.glob(self.azk_folder + '/*.azk')
 
         if not conf_file is None:
-            self.settings = azksettings.OldSettings(filename=conf_file)
+            self.settings = azksettings.get_old_settings(filename=conf_file)
         else:
             use_old = yes_or_no("Use an existing settings file?")
             if use_old:
-                self.settings = azksettings.OldSettings()
+                self.settings = azksettings.get_old_settings()
             else:
                 self.settings = azksettings.NewSettings()
         self.outfile = open(
