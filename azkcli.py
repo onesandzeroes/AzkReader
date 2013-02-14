@@ -1,5 +1,4 @@
 import argparse
-import azksettings
 import azkreader
 
 parser = argparse.ArgumentParser(description='Process azk files')
