@@ -69,7 +69,7 @@ class AzkFiles:
             else:
                 self.settings = azksettings.get_new_settings()
         self.outfile = open(
-            self.settings.user_filename + '-output.csv',
+            self.settings["user_filename"] + '-output.csv',
             'w',
             newline=''
         )
@@ -77,7 +77,7 @@ class AzkFiles:
         # each of the individual files
         output_fields = ['filename', 'subject', 'itemcode', 'rt', 'correct',
                          'trialnum']
-        output_fields += [var for var in self.settings.code_vars]
+        output_fields += [var for var in self.settings["code_vars"]]
         self.csv_out = csv.DictWriter(
             self.outfile,
             dialect='excel',
@@ -88,7 +88,7 @@ class AzkFiles:
         for azkfile in self.all_files:
             self.current_file = Azk(
                 filename=azkfile,
-                code_vars=self.settings.code_vars,
+                code_vars=self.settings["code_vars"],
                 output_file=self.csv_out
             )
         self.outfile.close()
