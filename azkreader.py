@@ -67,7 +67,7 @@ class AzkFiles:
             if use_old:
                 self.settings = azksettings.get_old_settings()
             else:
-                self.settings = azksettings.NewSettings()
+                self.settings = azksettings.get_new_settings()
         self.outfile = open(
             self.settings.user_filename + '-output.csv',
             'w',

@@ -239,7 +239,7 @@ class NewSettings:
 
 
 if __name__ == '__main__':
-    test_old = get_old_settings()
+    test_old = get_old_settings(filename="new_test.conf")
     assert(test_old == {
         'code_vars': collections.OrderedDict(
             [('item_number', slice(0, 3, None)),
