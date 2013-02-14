@@ -1,6 +1,4 @@
 #! /usr/bin/env python3
-# TODO: probably better to rewrite the settings classes so that they
-# return dicts, instead of the classes themselves
 """
 Parses the .azk data files created by dmdx, and outputs a long format
 csv file suitable for importing into R
