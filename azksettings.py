@@ -116,6 +116,7 @@ def get_new_indexes(input_vars):
     )
     code_tuples = collections.OrderedDict()
     for var in input_vars:
+        print(var)
         entered_index = input()
         # Sometimes variables span multiple digits, and the user enters them
         # in the form "2-5"
