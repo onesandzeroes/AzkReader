@@ -1,0 +1,26 @@
+
+        Display error encountered in TestInput\test.azk for 777test:
+        
+!  Display error at msec 260.59, tick 11 in item 0, frame "amphibians, fish and reptiles."
+!    was blocked by Flip() not returning for 29.13ms
+!     (previous frame's duration will have been longer)
+!    -- possibly caused by another process taking 1 tick
+!    -- exaggerated by msec callback being 19.98ms late
+!  Display error at msec 260.59, tick 11 in item 0, frame "amphibians, fish and reptiles."
+!    moved into video memory 1 tick late
+!     (previous frame's duration will have been longer)
+!    -- possibly caused by another process taking 1 tick
+!    -- but more than likely due to msec callback being 19.98ms late
+
+        Display error encountered in TestInput\test.azk for missing1:
+        
+!  Display error at msec 260.59, tick 11 in item 0, frame "amphibians, fish and reptiles."
+!    was blocked by Flip() not returning for 29.13ms
+!     (previous frame's duration will have been longer)
+!    -- possibly caused by another process taking 1 tick
+!    -- exaggerated by msec callback being 19.98ms late
+!  Display error at msec 260.59, tick 11 in item 0, frame "amphibians, fish and reptiles."
+!    moved into video memory 1 tick late
+!     (previous frame's duration will have been longer)
+!    -- possibly caused by another process taking 1 tick
+!    -- but more than likely due to msec callback being 19.98ms late

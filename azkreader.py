@@ -3,13 +3,14 @@
 Parses the .azk data files created by dmdx, and outputs a long format
 csv file suitable for importing into R
 """
+import logging
 import re
-import azksettings
 import csv
 import glob
 import os
 import sys
 import textwrap
+import azksettings
 
 
 def yes_or_no(message):
@@ -61,11 +62,19 @@ class AzkFiles:
         if not conf_file is None:
             self.settings = azksettings.get_old_settings(filename=conf_file)
         else:
-            use_old = yes_or_no("Use an existing settings file?")
+            use_old = yes_or_no("\nUse an existing settings file?")
             if use_old:
                 self.settings = azksettings.get_old_settings()
             else:
                 self.settings = azksettings.get_new_settings()
+        log_file = self.settings["user_filename"] + "-errorlog.txt"
+        logging.basicConfig(
+            filename=log_file,
+            filemode="w",
+            level=logging.INFO,
+            format="%(message)s"
+        )
+        print("Errors are being recorded in: ", log_file)
         self.outfile = open(
             self.settings["user_filename"] + '-output.csv',
             'w',
@@ -152,6 +161,7 @@ class Azk:
         self.inputfile = open(self.filename, 'r')
         self.file_subs = 0
         self.missing_subs = 0
+        self.dmdx_error = False
         # Iteration through the file happens here
         for line in self.inputfile:
             self.identify_line_type(line)
@@ -169,6 +179,13 @@ class Azk:
         e.g. Azk.total_subs_re
         """
         line = line.strip()
+        if line.startswith("!"):
+            self.log_dmdx_error(line)
+        # If the current line isn't an error line, switch the flag off
+        # again so the next error line will register as the start of a
+        # new line
+        if not line.startswith("!"):
+            self.dmdx_error = False
         # Line indicating number of subjects that should be in the current file
         if Azk.total_subs_re.match(line):
             self.subs_should_be = int(line.split(' ')[-1])
@@ -234,6 +251,21 @@ class Azk:
             current_slice = self.code_vars[var]
             trial_info[var] = code[current_slice]
         self.out.writerow(trial_info)
+
+    def log_dmdx_error(self, text):
+        new_error_info = """
+        Display error encountered in {filename} for {subject}:
+        """
+        if not self.dmdx_error:
+            new_error_dict = {
+                'filename': self.filename,
+                'subject': self.current_sub
+            }
+            logging.info(new_error_info.format(**new_error_dict))
+            self.dmdx_error = True
+        logging.info(text)
+
+
 
 
 if __name__ == '__main__':
